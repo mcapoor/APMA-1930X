@@ -1,4 +1,4 @@
-\documentclass[12pt]{article} 
+\documentclass[12pt]{report} 
 \usepackage[utf8]{inputenc}
 \usepackage{geometry}
 \geometry{letterpaper}
@@ -33,6 +33,9 @@
 \usepackage{xcolor}
 
 \usepackage{tikz}
+\usetikzlibrary{positioning}
+\usetikzlibrary{calc}
+
 \usepackage{pgfplots}
 \usepackage{tikz-cd}
 \usepackage{tikz-qtree}
@@ -41,13 +44,14 @@
 \newcommand{\ans}[1]{\boxed{\text{#1}}}
 \newcommand{\vecs}[1]{\langle #1\rangle}
 \renewcommand{\hat}[1]{\widehat{#1}}
-\newcommand{\F}[1]{\mathcal{F}(#1)}
+\newcommand{\F}{\mathcal{F}}
 \renewcommand{\P}{\mathbb{P}}
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\Z}{\mathbb{Z}}
 \newcommand{\N}{\mathbb{N}}
 \newcommand{\Q}{\mathbb{Q}}
+\renewcommand{\S}{\mathcal{S}}
 \newcommand{\ind}{\mathbbm{1}}
 \newcommand{\qed}{\quad \blacksquare}
 \newcommand{\brak}[1]{\left\langle #1 \right\rangle}
@@ -58,6 +62,9 @@
 \newcommand{\ep}{\varepsilon}
 
 \newcommand{\sub}{\subseteq}
+
+\newcommand*{\tbf}[1]{\ifmmode\mathbf{#1}\else\textbf{#1}\fi}
+
 
 \usepackage{tcolorbox}
 \tcbuselibrary{breakable, skins}
@@ -80,6 +87,7 @@
 
 \begin{document}
 \maketitle
+\chapter{Introduction and Examples}
 \section*{Sept 04}
 \subsection*{Kelly Betting}
     Imagine a game where 
@@ -522,7 +530,7 @@
     \[\binom{2n}{k}(2n - k)!\]
     But how many ways are there to make a cycle with $\binom{2n}{k}$ elements? $(k-1)!$ 
 
-    All togehter, 
+    All together, 
     \begin{align*}
         \P(\text{one cycle} = k) &= \frac{1}{(2n)!} \binom{2n}{k}(2n - k)!(k-1)!\\ 
         &= \frac{1}{(2n)!}\frac{(2n)!}{(2n -k)!k!} (2n-k)!(k-1)!\\ 
@@ -578,7 +586,7 @@
         0 & \omega \notin A
     \end{cases}\]  
 
-    Then, staightforwardly, $\P(A) = \E[\ind_A]$ and the Law of Total Probability is 
+    Then, straightforwardly, $\P(A) = \E[\ind_A]$ and the Law of Total Probability is 
     \[\P(A) = \E \; | \; \P(A \; | \; X)\] 
     for any family of random variables $X$. 
     
@@ -681,7 +689,7 @@
             \item max/min $f(x, y)$ by solving $f_x = f_y = 0$ 
         \end{enumerate}
 
-        \textbf{Example (Langrange multipliers):} maximize $x + y$ given $x^2 + y^2 =1$ 
+        \textbf{Example (Lagrange multipliers):} maximize $x + y$ given $x^2 + y^2 =1$ 
 
         Graphically: 
         \begin{center}
@@ -691,6 +699,7 @@
                     xlabel={$x$},
                     ylabel={$y$},
                     grid=major,
+                    domain=-3:3,
                     xmin=-1.5, xmax=1.5,
                     ymin=-1.5, ymax=1.5,
                     samples=100
@@ -723,7 +732,7 @@
                 ] {-x - 1};
                 \node at (axis cs: 1, 0) {$x + y = -1$};
                 \addplot[
-                    domain=-:1,
+                    domain=-1:1,
                     samples=100,
                     dashed,
                     red
@@ -742,7 +751,7 @@
             H_x = 1 - 2\lambda x = 0\\ 
             H_y = 1 - 2\lambda y = 0\\
             H_{\lambda} = x^2 + y^2 - 1 = 0
-        \end{cases} \imp;ies \begin{cases}
+        \end{cases} \implies \begin{cases}
             x = y = \frac{1}{2\lambda}\\ 
             x^2 + y^2 = 1
         \end{cases} \implies x^* = y^* = \pm \frac{\sqrt 2}{2}\]
@@ -777,24 +786,25 @@
 \section{Sept 18}
 \subsection*{Calculus of Variations}
     \textbf{Example:} Suppose you have two points. Place a ball at the first point and let it roll to the second point. What shape should the path be to minimize the descent time? 
+       
+    \begin{tikzpicture}
+        \begin{axis}[
+            axis equal,
+            xlabel={$x$},
+            ylabel={$y$},
+            grid=none, 
+            domain=0:3,
+            xmin=0, xmax=3,
+            ymin=-3, ymax=0, 
+            samples=100
+        ]
+            \node at (axis cs: 0, 0) {$O$};
+            \node at (axis cs: 2, -1) {$(a, b)$};
+            \draw (axis cs: 0, 0) arc [start angle=-30,  end angle=180] (axis cs: 2, -1);
+            \addplot[domain=0.01:3, samples=100, thick, blue] {-(1/2) * sin(deg(pi * x / 3)) - 1};
+        \end{axis}
+    \end{tikzpicture}
 
-    \begin{center}
-        \begin{tikzpicture}
-            \begin{axis}[
-                axis equal,
-                xlabel={$x$},
-                ylabel={$y$},
-                grid=none, 
-                xmin=0, xmax=3,
-                ymin=-3, ymax=0, 
-                samples=100
-            ]
-                \node at (axis cs: 0, 0) {$O$};
-                \node at (axis cs: 2, -1) {$(a, b)$};
-                \draw (axis cs: 0, 0) arc [start angle=-30,  end angle=180] (axis cs: 2, -1);
-                \addplot[domain=0:3, samples=100, thick, blue] {-(1/2) * sin(deg(pi * x / 3)) - 1};
-            \end{axis}
-        \end{tikzpicture}
 
     Formally, let the curve be described by the function $f$ such that $f(0) =0, f(a) = b$. The descent time is given by $L(f)$. Our goal:
     \[\min_f L(f)\]
@@ -893,7 +903,7 @@
     for $n = 0, 1, \dots, N - 1$
 
     Our goal is to find $\{u_0, u_1, \dots, u_{N-1}\}$ to minimize 
-    \[\sum_{n=0}^{N} (x_n^2 + \lambda u_n^2 x^n^2) + ax_n^2 \qquad \lambda, a > 0\]
+    \[\sum_{n=0}^{N} (x_n^2 + \lambda u_n^2 x_n^2) + ax_n^2 \qquad \lambda, a > 0\]
     with $x_0$ given. 
 
     We want to write the Dynamic Programming Equation. Define $V_k(x)$ as the minimal cost from time $t= k$ forward:
@@ -923,7 +933,7 @@
         but now $n = 0, 1, 2, \dots$ 
         
         Our goal is to find $\{u_0, u_1, \dots\}$ to minimize 
-        \[\sum_{n=0}^{\infty} (x_n^2 + \lambda u_n^2 x^n^2) \qquad \lambda > 0\]
+        \[\sum_{n=0}^{\infty} (x_n^2 + \lambda u_n^2 x_n^2) \qquad \lambda > 0\]
         with $x_0$ given.
 
         First, we write the Dynamic Programming Equation:
@@ -971,4 +981,1143 @@
         will solve the dynamic programming equation. 
 
         And even better, we identified the optimal control in the process. 
-\end{document}   
+
+\section{Sept 25}
+    \subsection*{Optimal Quadratic Control}
+        \textbf{Recall:} let the system state evolve according to  
+        \[x_{n+1} = x_n(1 - u_n)\]
+
+        \emph{Goal:} find $\mathcal U = \{u_1, u_2, \dots\}$ to minimize 
+        \[\min_{u_i \in \mathcal{U}} \sum_{n=0}^\infty (x_n^2 + \lambda x_n^2 u_n^2)\]
+
+        We can write the dynamic programming equation:
+        \[V(x) = \min_{0 \leq u \leq 1} \left[\underbrace{x^2(1 + \lambda u^2)}_{\text{current timestep cost}} + \underbrace{V(x(1 - u))}_{\text{next timestep value}}\right]\]
+
+        Which will give the solution 
+        \[V(x) = cx^2 = \frac{1 + \sqrt{1 + 4\lambda}}{2} \, x^2\]
+        corresponding to $u^* = \frac{c}{c + \lambda}$ for all $x, n$
+
+        In most applications, we can stop here. But we haven't yet answered ``is this provably optimal?''
+
+        \begin{tbox}{\textbf{Theorem:} $u^* = \frac{c}{c + \lambda}$ is the optimal control and $V(x) = cx^2$ is the minimal cost if $x_0 = x$}  
+            \emph{Proof (Verification argument):} We want to show 
+            \begin{enumerate}
+                \item Given any $\mathcal U = \{u_0, u_1, \dots\}$, 
+                \[\sum_{n=0}^{\infty} (x_n^2 + \lambda x_n^2 u_n^2) \geq cx^2\]
+                \item If $u_n^* = u^*$ for all $n$, then 
+                \[\sum_{n=0}^\infty (x_n^2 + \lambda x_n^2 u_n^{*2}) = cx^2\]
+            \end{enumerate} 
+
+            Part 1: Define 
+            \[a_k = \sum_{n=1}^{k-1} (x_n^2 + \lambda x_n^2 u_n^2) + cx_k^2\] 
+            (heuristically: use $u_1, \dots, u_k$ then use $u^*$ for the rest). 
+
+            Intuitively, $a_k$ should be increasing as we use more and more non-optimal controls. And indeed,
+            \begin{align*}
+                a_{k+1} - a_k &= \left[\sum_{n=0}^{k} (x_n^2 + \lambda x_n^2 u_n^2) + V(x_{k})\right] - \left[\sum_{n=0}^{k-1} (x_n^2 + \lambda x_n^2 u_n^2) + V(x_{k-1})\right]\\ 
+                    &= (x_{k}^2 + \lambda x_{k}^2 u_{k}^2) + V(x_{k+1}) - V(x_{k})\\
+            \end{align*}
+            but 
+            \begin{align*}
+                V(x_{k}) &= \min_{0 \leq u \leq 1} \left[x_{k}^2(1 + \lambda u^2) + V(x_{k}(1 - u))\right]\\ 
+                    &\leq x_{k}^2(1 + \lambda u_k^2) + V(x_{k}(1 - u_{k})) \qquad (\text{if } u = u_{k})\\
+                    &= x_{k}^2 + \lambda x_{k}^2 u_{k}^2 + V(x_{k+1})
+            \end{align*}
+            so 
+            \begin{align*}
+                a_{k+1} - a_k &= (x_{k}^2 + \lambda x_{k}^2 u_{k}^2) + V(x_{k+1}) - V(x_{k})\\\ 
+                    &\geq (x_{k}^2 + \lambda x_{k}^2 u_{k}^2) + V(x_{k+1}) - ( x_{k}^2 + \lambda x_{k}^2 u_{k}^2 + V(x_{k+1}))
+                    &= 0 
+            \end{align*}
+        
+            So 
+            \[a_{k+1} \geq a_k \geq \dots \geq a_1 \geq a_0 = (x^2 + \lambda x^2 u_0^2) + V(x_1) \geq V(x)\] 
+
+            Hence
+            \[\lim_{k \to \infty} \sum_{n=0}^k (x_n^2 + \lambda x_n^2 u_n^2) + cx_{k+1}^2 \geq cx^2\]
+            so 
+            \[\lim_{k \to \infty} \sum_{n=0}^k (x_n^2 + \lambda x_n^2 u_n^2) \not\to 0 \implies \sum_{n=0}^{\infty} (x_n^2 + \lambda x_n^2 u_n^2) \geq cx^2\]
+            as desired. 
+
+            Part 2: Omitted
+        \end{tbox}
+
+    \subsection*{Deterministic Continuous Time Control}
+        Let $[0, T]$ be a time interval. Define a deterministic control process: $u: [0, T] \to \R$ and a state process $x: [0, T] \to \R$ such that $x_t = x(t)$.
+
+        We define the \emph{linear regulator} state model: 
+        \[\frac{dx_t}{dt} = ax_t + u_t\]
+
+        The goal is to find a control process $\{u_t: t \in [0, T]\}$ to minimize 
+        \[x_T^2 + \int_0^T (\nu x_t^2 + \lambda u_t^2)\; dt\]
+        with $\nu, \lambda > 0$. 
+
+        Let $V(t, x)$ be the minimal cost on $[t, T]$ where $x_t = x$: 
+        \[V(t, x) = \min\left[x_T^2 + \int_t^T (\nu x_s^2 + \lambda u_s^2); ds\right]\]
+
+        So the minimal cost for the original problem given $x_0 = x$ is just $V(0, x)$.
+
+        As above, we want to consider an arbitrary control $u_t = u$ for a small time step $[t, \ep]$ and then optimally control the rest. So 
+        \[V(0, x) \leq \int_0^{\ep} (\nu x_t^2 + \lambda u^2) + V(\ep, x_{\ep})\] 
+
+\section{Sept 27}
+    \subsection*{Deterministic Continuous-Time Control}
+        Let $x_t$ be the state at time $t$ and $u_t \in \R$ be the control at time $t$.
+
+        Suppose the state evolves according to
+        \[\frac{dx_t}{dt} = ax_t + u_t\]
+
+        \textbf{Goal:} Find $\{u_t: t \in (0, T)\}$ (finite horizon!) to minimize 
+        \[\underbrace{\int_0^T (u x_t^2 + \lambda u_t^2)\; dt}_{\text{running cost}} + \underbrace{x_T^2}_{\text{terminal cost}}\]
+
+        Define $V: [0, T] \times \R \to \R$ as the minimal cost on $[t, T]$ given $x_t = x$:
+        \[V(t, x) = \min_{u} \int_t^T (\nu x_s^2 + \lambda u_s^2)\; ds + x_T^2\]
+
+        One strategy to solve this is to consider an arbitrary control $u_t = u$ for a small time step $[t, \ep]$ and then optimally control the rest: 
+        \[V(0, x_0) \leq \int_0^{\ep} (\nu x_t^2 + \lambda u^2)\; dt + V(\ep, x_{\ep})\]
+
+        But in fact, for optimal $u$, 
+        \[V(0, x_0) = \min_u \left[\int_0^{\ep} (\nu x_t^2 + \lambda u^2)\; dt + V(\ep, x_{\ep})\right]\] 
+
+        If we were to start at any time $t \geq 0$, we can use a similar argument to show that
+        \[V(t, x_t) = \min_u \left[\int_t^{t + \ep} (\nu x_s^2 + \lambda u^2)\; ds + V(t + \ep, x_{t + \ep})\right]\]
+
+        But for small $\ep$, $x_t \approx x_0$ and 
+        \[V(t + \ep, x_{t + \ep}) - V(t, x_t) \approx \frac{\partial V}{\partial t} \ep + \frac{\partial V}{\partial dx}(x_{t + \ep} - x_t) \] 
+        (from Taylor Series expansion)
+
+        And using the state ODE, 
+        \[\frac{\partial V}{\partial t} \ep + \frac{\partial V}{\partial dx}(x_{t + \ep} - x_t)  \approx \frac{\partial V}{\partial t} \ep + \frac{\partial V}{\partial dx}(ax_t + u) \ep\] 
+
+        Together, 
+        \begin{align*}
+            V(t, x_t) &= \min_u \left[\int_t^{t + \ep} (\nu x_s^2 + \lambda u^2)\; ds + V(t + \ep, x_{t + \ep})\right]\\ 
+                &\approx (\nu x^2 + \lambda u^2) \cdot \ep + V(t, x) + \frac{\partial V}{\partial t} \ep + \frac{\partial V}{\partial dx}(ax_t + u) \ep\\ 
+                &= V(t, x) + \ep \left[\nu x^2 + \lambda u^2 + \frac{\partial V}{\partial t} + \frac{\partial V}{\partial x}(ax_t + u)\right]
+        \end{align*}
+
+        Since $V(t, x_t)$ is minimal, the LHS must be less or equal to the RHS. So the bracketed term is $\geq 0$. But in the optimal case, the bracketed term is exactly 0, which gives us our control: 
+        \[0 = \min_u \left[(\nu x^2 + \lambda u^2) + \frac{\partial V}{\partial t} + \frac{\partial V}{\partial x}(ax + u)\right]\]
+
+        In fact, this is the \textbf{Hamilton-Jacobi-Bellman Equation}. In general, there will be infinitely many solutions but we can do better. 
+
+        Consider the terminal cost: $V(T, x) = 0 + x_T^2 = x^2$. So we now have a boundary condition!
+        \[\begin{cases}
+            0 = \min_u \left[(\nu x^2 + \lambda u^2) + \frac{\partial V}{\partial t} + \frac{\partial V}{\partial x}(ax + u)\right]\\ 
+            V(T, x) = x^2
+        \end{cases}\]
+
+        But if we rearrange our terms, 
+        \[ 0 = \min_u \left[\lambda u^2 + \frac{\partial V}{\partial x}\cdot u + \frac{\partial V}{\partial t} + ax \frac{\partial V}{\partial x} + \nu x^2\right]\]
+        
+        And to minimize $u$, it suffices to take the derivative with respect to $u$ and set to 0:
+        \[0 = -\frac{1}{4\lambda} \left(\frac{\partial V}{\partial x}\right)^2 + \frac{\partial V}{\partial t} + ax \frac{\partial V}{\partial x} + \nu x^2\]
+        
+        This is a PDE which it just so happen we can solve. 
+
+        \emph{Conjecture:} $V(t, x) = f(t) x^2$. 
+
+        Then 
+        \begin{align*}
+            0 &-= -\frac{1}{4\lambda} \left(\frac{\partial V}{\partial x}\right)^2 + \frac{\partial V}{\partial t} + ax \frac{\partial V}{\partial x} + \nu x^2\\ 
+            &= x^2 \left[f'(t) + 2af(t) - \frac{1}{\lambda} f^2(t) + \nu\right]\\ 
+        \end{align*}
+        which implies 
+        \[\begin{cases}
+            f'(t) + 2af(t) - \frac{1}{\lambda} f^2(t) + \nu = 0\\ 
+            f(T) = 1
+        \end{cases}\]
+        which is precisely the \textbf{Piccati Equation} from engineering and which happens to have an explicit solution. 
+
+\section{Sept 30}
+    \subsection*{Discrete-time Stochastic Optimal Control}
+        \textbf{Example (Secretary Problem):} Suppose you have $N$ secretaries to interview. You can interview them one at a time and must decide to hire or reject them immediately. You can't go back. What is the optimal strategy to maximize the probability of hiring the best secretary?
+
+        Define $\{x_{n}\}_{n=1}^N$ by 
+        \[x_n = \begin{cases}
+            1 & \text{if the $n$-th secretary is the best (so far)}\\
+            0 & \text{otherwise}
+        \end{cases}\]
+
+        \textbf{Suggested Strategy:}
+        \begin{enumerate}
+            \item If $x_n = 0$, reject the $n$-th secretary (certainly they cannot be the best if they are not the best so far)
+            \item If $x_n = 1$, if $n$ is large, hire the $n$-th secretary. If $n$ is small, reject the $n$-th secretary.
+        \end{enumerate}
+
+        But how do we define ``large'' and ``small''?
+
+        Define $V_n: \{0, 1\} \to [0, 1]$ as the maximal probability of hiring the absolute best secretary given that $x_n = x$
+
+        But if $x_n = 0$, then we want to reject the $n$-th secretary and move on so 
+        \[V_n(0) = \E[V_{n+1}(x_{n+1}) \big\vert\;  x_n = 0]\]
+
+        If $x_1 = 1$, we have two options: hire the $n$-th secretary or continue. The expected value if we continue is exactly the same as if $x_n = 0$. If we hire them, the probability of hiring the best secretary given that the $n$-th is the best so far is $\frac{n}{N}$. Together,
+        \[V_n(1) = \max\{\frac{n}{N}, \E[V_{n+1}(x_{n+1}) \big\vert \; x_n = 1]\}\]
+
+        So 
+        \[V_n(x) = \begin{cases}
+            \E[V_{n+1}(x_{n+1}) \big\vert \; x_n = 0] & \text{if } x = 0\\
+            \max\{\frac{n}{N}, \E[V_{n+1}(x_{n+1}) \big\vert \; x_n = 1]\} & \text{if } x = 1
+        \end{cases}\]
+
+        We have terminal condition:
+        \[\begin{cases}
+            V_N(1) = 1\\ 
+            V_N(0) = 0
+        \end{cases}\]
+
+        So it just remains to find the conditional distribution of $x_{n+1}$ given $x_n$. 
+
+        \textbf{Claim:} $\{x_1\}_1^N$ are independent. 
+
+        \emph{Proof:} Rigorous proof by combinatorics. Heuristic proof: $x_n$ is the relative ranking of the first $n$ secretaries. $x_{n+1}$ does not depend on the ranking of the first $n$ secretaries at all -- just the probability that $x_{n+1}$ is better than all of them. 
+
+        So, in fact, 
+        \[V_n(x) = \begin{cases}
+            \E[V_{n+1}(x_{n+1})] & \text{if } x = 0\\
+            \max\{\frac{n}{N}, \E[V_{n+1}(x_{n+1})]\} & \text{if } x = 1
+        \end{cases}\]
+        
+        We know 
+        \[\begin{cases}
+            \P(x_{n+1} = 1) = \frac{1}{n+1}\\
+            \P(x_{n+1} = 0) = \frac{n}{n+1}
+        \end{cases}\] 
+
+        So 
+        \begin{align*}
+            \E[V_{n+1}(x_{n+1})] &= V_{n+1}(1) \cdot \P(x_{n+1} = 1) + V_{n+1}(0) \cdot \P(x_{n+1} = 0)\\ 
+                &= \frac{1}{n+1} V_{n+1}(1) + \frac{n}{n+1} V_{n+1}(0)
+        \end{align*}
+
+        And at last we have the full Dynamic Programming Equation:
+        \[V_n(x) = \begin{cases}
+            \frac{1}{n+1} V_{n+1}(1) + \frac{n}{n+1} V_{n+1}(0) & \text{if } x = 0\\
+            \max\{\frac{n}{N}, V_n(0)\} & \text{if } x = 1
+        \end{cases}\]
+        with terminal condition $V_N(1) = 1$ and $V_N(0) = 0$.
+
+        In order to solve this explicitly, we make some observations:
+        \begin{enumerate}
+            \item $V_n(1) \geq V_n(0)$ trivially for all $n$ 
+            \item $V_n(0)$ is decreasing in $n$ 
+            \item Suppose $V_n(1) = V_n(0)$ for some $n$. Then 
+            \[V_n(1) = V_n(0) \geq \frac{n}{N} \implies V_k(1) = V_k(0) = V_n(1) = V_n(0)\]
+            for all $1 \leq k \leq n$. 
+
+            Therefore, there exists a $1 \leq n^* \leq N$ such that 
+            \begin{enumerate}[label=(\alph*)]
+                \item $V_n(1) = V_n(0) = a$ for all $1 \leq n \geq n^*$ and some constant $a$
+                \item $V_n(1) > V_n(0)$ for all $n \geq n^*$ 
+            \end{enumerate}
+        \end{enumerate}
+
+        Then we have $V_n(1) = \frac{n}{N} > V_N(0)$ for $n \geq n^*$ so 
+        \begin{align*}
+            V_n(0) &= \frac{1}{n+1} \frac{n+1}{N} + \frac{n}{n+1} V_{n+1}(0)\\ 
+                &= \frac{1}{N} + \frac{n}{n+1} V_{n+1}(0)
+        \end{align*}
+        for $n\geq n^* - 1$. 
+
+        Since $V_N(0) = 1$, we claim
+        \[V_n(0) = \frac{n}{N} \sum_{k=n}^{n-1} \frac{1}{k}\]
+        for $n^* - 1 \leq n \leq N$. 
+
+        Further, 
+        \begin{align*}
+            a &= V_{n^* - 1}(1)\\ 
+                &= \max\left\{\frac{n^* - 1}{N}, V_{n^* - 1}(0)\right\}\\ 
+                &= V_{n^* - 1}(0)\\ 
+                &\geq \frac{n^* - 1}{N}\\ 
+            V_{n^*}(1) = \frac{n^*}{N} > V_{n^*}(0)
+        \end{align*}
+
+        So, 
+        \[\sum_{k=n^*}^{N-1} \frac{1}{k} < 1 \leq \sum_{n^*-1}^{N_1} \frac{1}{k}\]
+        which uniquely determines $n^*$.
+
+        \textbf{Optimal strategy:} Stop at time 
+        \[\tau^* = \inf\{n \geq n^*: X_n = 1\}\]
+
+        In this case, the maximal probability of finding the absolute best is 
+        \[a = V_{n^* - 1}(0) = \frac{n^* - 1}{N} \sum_{k=n^*-1}^{N-1} \frac{1}{k}\]
+
+        It just so happens that 
+        \[\lim_{N \to \infty} \sum_{n=1}^{N}\frac{1}{n} - \log N = \gamma \approx 0.577 \]
+        ($\gamma$ is the \emph{Euler-Mascheroni constant}). So 
+        \[\sum_{k=n}^{N-1} \frac{1}{k} \approx (\log N + \gamma) - (\log n + \gamma) = \log\left(\frac{N}{n}\right) \]
+
+        So for large $N$, 
+        \[n^* \approx \frac{N}{e} \approx \frac{N}{3}, \quad a \approx \frac{1}{e} \approx \frac{1}{3}\]
+
+\section{Oct 02}
+    \subsection*{Utility Maximization} 
+        \textbf{Example:} Let $S_0 = x_0 > 0$ be your initial wealth and $S_n$ the wealth at the end of the $n$-th betting round subject to 
+        \[S_{n+1} = S_n + x_{n+1} y_{n+1}\]
+        where 
+        \begin{itemize}
+            \item $0 \leq y_{n+1} \leq S_n$ is the amount bet at the $n+1$ round
+            \item $x_{n+1} \in \{\pm 1\}$ is the outcome of the $n+1$ round with $\P(x_{n} = 1) = p$, $\P(x_{n} = -1) = q$, $p > q$
+            \item We assume $\{x_1, \dots, x_n, \dots\}$ are iid. 
+        \end{itemize}
+
+        \emph{Goal:} Find $\{y_1, y_2, \dots, y_N\}$ that maximize $\E[u(S_N)]$ where $u$ is the concave \emph{power utility} 
+        \[u(x) = x^{\alpha},\quad 0 < \alpha < 1\]
+
+        \textbf{Concave:} a function $f$ is concave iff $f'$ is non-increasing. Otherwise, it is \emph{convex}. 
+        
+        Define 
+        \[v_n(x) = \max \E[u(S_N)\; | \; S_n = x]\]
+
+        With terminal condition 
+        \[v_N(x) = \max \E[u(S_n) \; | \; S_n = x] = u(x) = x^{\alpha} \]
+
+        Consider any time $n < N$ corresponding to $S_n = x$. Arbitrarily pick $y_{n+1} = y$ for $0 \leq y \leq x$. Then 
+        \begin{itemize}
+            \item With probability $p$, $x_{n+1} = 1$ so $S_{n+1} = x + y$
+            \item With probability $q$, $x_{n+1} = -1$ so $S_{n+1} = x - y$
+        \end{itemize}
+
+        Now suppose we choose optimal controls for $\{y_{n+2}, \dots, y_N\}$. Then if
+        \[\begin{cases}
+            S_{n+1} = x + y\\ 
+            S_{n+1} = x - y
+        \end{cases} \implies \begin{cases}
+            v_{n+1}(x + y)\\ 
+            v_{n+1}(x - y)
+        \end{cases}\] 
+        
+        So 
+        \[v_n(x) = \max_{0 \leq y \leq x} [pv_{n+1}(x + y) + qv_{n+1}(x - y)]\]
+        subject to $v_N(x) = x^{\alpha}$. 
+
+        This is a recursive equation with terminal condition but it is incredibly difficult to solve numerically because $x \in \R^+$ and $y \in [0, x]$.
+
+        Let's take just the last step:
+        \begin{align*}
+            v_{N-1}(x) &= \max_{0 \leq y \leq x} [pv_N(x + y) + qv_N(x - y)]\\ 
+                &= \max_{0 \leq y \leq x} [p(x + y)^{\alpha} + q(x - y)^{\alpha}]\\ 
+                &\overset{y = tx}{=} \max_{0 \leq t \leq 1} [p(x + tx)^{\alpha} + q(x - tx)^{\alpha}]\\
+                &= \max_{0 \leq t \leq 1} x^{\alpha}[p(1 + t)^{\alpha} + q(1 - t)^{\alpha}]        
+        \end{align*}
+
+        But the bracketed term is a constant (say $c$) so 
+        \[v_{N_1}(x) = cx^{\alpha}\]
+        and in fact $v_{n-2}(x) = c^2x^{\alpha}, \dots$ so we are done. 
+
+        With some ugly algebra, 
+        \[t^* = \frac{p^{\gamma} - q^{\gamma}}{p^{\gamma} + q^{\gamma}}, \quad \gamma = \frac{1}{1 - \alpha}\]
+
+        For all of these examples, we provide very little proof. That requires \emph{Markov Chains and Martingales}
+
+\chapter{Markov Chain \& Martingales}
+\section{Oct 02}
+    \textbf{Markov chain:} a sequence of random variables $\{S_n\}_{n=0}^{\infty}$ such that $S_{n+1}$ depends only on $S_n$ 
+
+    \begin{center}
+        \begin{tikzpicture}[-> , >= stealth, shorten >=2pt, line width =0.5 pt,
+        node distance=2 cm]
+            \node [circle, draw] (zero) {$S_0$};
+            \node [circle, draw, right of=zero] (one) {$S_1$};
+            \node [circle, draw, right of=one] (two) {$S_2$};
+            \node [right of=two] (dots) {$\dots$};
+            \node [circle, draw, right of=dots] (n) {$S_n$};
+
+            \path (zero) edge (one);
+            \path (one) edge (two);
+            \path (two) edge (dots);
+            \path (dots) edge (n);
+        \end{tikzpicture}
+    \end{center}
+
+    Formally, 
+    \[[S_{n+1} \; | \; S_n, S_{n-1}, \dots, S_1] = [S_{n+1} \; | \; ]\]
+
+    \textbf{Example (Simple Random Walk):} $S_{n+1} = S_n + X_{n+1}$ where $\P(X_{n+1} = \pm 1) = \frac{1}{2}$ 
+    
+    \textbf{Example:} Take a coin with $\P(H) = p, \; \P(T) = q$. What is the expected number of tosses until the pattern HHT appears? 
+
+    We can draw a Markov chain for a particular pattern: 
+
+    \begin{center}
+        \begin{tikzpicture}[-> , >= stealth, shorten >=2pt, line width =0.5 pt,
+        node distance=2 cm]
+            \node [circle, draw] (zero) {$0$};
+            \node [circle, draw, right of=zero] (H) {$H$};
+            \node [circle, draw, right of=H] (HH) {$HH$};
+            \node [circle, draw, right of=HH] (HHT) {$HHT$};
+
+            \path (zero) edge [loop left] node {$q$} (zero);
+
+            \path (zero) edge [bend left] node[above] {$p$} (H);
+            \path (H) edge [bend left] node[below] {$q$} (zero);
+
+            \path (H) edge node[above] {$p$} (HH);
+            \path (HH) edge [loop below] node {$q$} (HH);
+
+            \path (HH) edge node[above] {$p$} (HHT);
+
+        \end{tikzpicture}
+    \end{center}
+
+\section{Oct 04}
+\subsection*{Background}
+    \textbf{Recall:} A Markov chain is a sequence of random variables $\{X_n\}_{n=0}^{\infty}$ such that
+    \[\P(X_{n+1} \in A\; | \; X_{n} = x_n, \dots, X_0 = x_0) = \P(X_{n+1} \in A \; | \; X_n = x_n)\] 
+
+    \textbf{State space:} Let $\S$ be all the possible values of $X_n$. In this class, assume $\S$ is countable.
+    
+    \textbf{Transition probability:} If $\P(X_{n+1} = y \; | \; X_n = x)$ is time-invariant (does not depend on $n$), then we call it \textbf{homogeneous} and write 
+    \[P_{xy} = \P(X_{n+1} = y \; | \; X_n = x)\]
+
+    \textbf{Transition matrix:} We can enumerate all the transition probabilities by 
+    \[[P_{xy}]_{xy} = \begin{bmatrix}
+        P_{00} & P_{01} & \dots\\
+        P_{10} & P_{11} & \dots\\
+        \vdots & \vdots & \ddots
+    \end{bmatrix}\]
+    which will have two very nice properties:
+    \begin{enumerate}
+        \item $P_{xy} \geq 0$ for all $x, y \in \S$
+        \item $\sum_{y \in \S} P_{xy} = 1$ for all $x \in \S$ (each row sums to 1)
+    \end{enumerate}
+
+    \textbf{Example (Simple Random Walk):} Consider
+    \[S_{n+1} = S_n + X_{n+1}\]
+    over $\S = \Z$ where $\P(X_{n+1} = 1) = p$ and $\P(X_{n+1} = -1) = q$.
+
+    Clearly, 
+    \[\begin{cases}
+        P_{x, x+ 1} = p\\ 
+        P_{x, x-1} = q\\
+        P_{x, y} = 0 & \text{ if } y\neq x \pm1 
+    \end{cases}\]
+
+\subsection*{Computational Problems}
+    \textbf{Example:} 
+    \begin{center}
+        \begin{tikzpicture}[-> , >= stealth, shorten >=2pt, line width =0.5 pt]
+            % Define the radius of the circle
+            \def\radius{3cm}
+            % Define the positions of the circles
+            \foreach \i in {1,...,5} {
+                \node[circle, draw, minimum size=1cm] (C\i) at ({360/5 * (\i - 1)}:\radius) {};
+            }
+            % Label the circles
+            \node at (C1) {A};
+            \node at (C2) {B};
+            \node at (C3) {C};
+            \node at (C4) {E};
+            \node at (C5) {D};
+
+            % Paths 
+            \draw (C1) edge[bend left] node[above]{0.3} (C2); % A -> B
+            \draw (C2) edge[bend left] node[above]{0.5} (C1); % B -> A
+            \draw (C1) edge[bend left] node[above]{0.2} (C5); % A -> D
+            \draw (C2) edge[loop above] node{0.3} (C2); % B -> B
+            \draw (C2) edge[bend left] node[above]{0.2} (C3); % B -> C
+            \draw (C3) edge[bend left] node[above]{0.2} (C4); % C -> E
+            \draw (C3) edge[loop left] node{0.8} (C3); % C -> C
+            \draw (C4) edge[bend left] node[above]{0.5} (C3); % E -> C 
+            \draw (C5) edge[bend left] node[above]{0.2} (C4); % D -> E 
+            \draw (C5) edge[loop below] node{0.8} (C5); % D -> D
+        \end{tikzpicture}
+    \end{center}
+
+    So, for example, 
+    \begin{itemize}
+        \item $P_{AD} = 0.2$
+        \item $P_{EA} = 0.5$
+        \item $P_{ED} = 0$
+    \end{itemize}
+
+    \emph{Question 1:} What is the probability that starting from state $B$, the Markov Chain will hit state $D$ eventually
+
+    Let's try first step analysis. Call $x_B$ the probability of hitting $D$ starting from $B$. 
+    
+    Then the first transition is just the probability of transitioning times the probability of hitting $D$ from the new state:
+    \begin{align*}
+        x_B &= P_{BA} x_A + P_{BB} x_B + P_{BC} x_C + P_{BD} x_D + P_{BE} x_E\\ 
+        &= 0.5x_A + 0.3x_B + 0.2x_C 
+    \end{align*}
+    and if we repeat this for all states, we get a system of 5 linear equations with 5 unknowns -- which we can solve with a matrix!
+
+    And to make things simpler, $x_D = 1$.
+
+    And after finding all the equations and solving, we get $\boxed{x_B = 1}$
+
+    \emph{Question 2:} What is the probability that starting from state $B$, the Markov Chain will hit state $D$ before state $E$?
+
+    Again call this probability $x_B$ and notice that $x_s$ for $s \in \S$ is exactly the same as before (except with two special condition):
+    \begin{itemize}
+        \item $x_D = 1$
+        \item $x_E = 0$
+    \end{itemize}
+
+    \emph{Question 3:} What is the average number of steps to reach state $D$ from state $A$? 
+
+    We can once again call this $x_A$ and define 
+    \[\begin{cases}
+        x_s = 0 & \text{if } s = D\\
+        x_s = P_{sA} (1 + x_A) + P_{sB} (1 + x_B) + P_{sC} (1 + x_C) + P_{sD} (1 + x_D) + P_{sE} (1 + x_E) & \text{otherwise}
+    \end{cases}\]
+    for $s \in \S$.
+
+    \emph{Question 4:} Suppose the initial state is $A$. Let $T$ be the number of steps to reach $D$. In Q3, we calculated $\E[T]$. Now calculate 
+    \[\E\left[\sum_{n=0}^{T-1} \beta^n \phi(x_n) \right]\]
+    where $\phi(n)$ represent a payoff table 
+    \begin{center}
+        \begin{tabular}{c|c}
+            $s$ & $\phi(x_S)$\\ 
+            \hline
+            A & 1\\ 
+            B & 2\\ 
+            C & 0\\ 
+            D & -1\\ 
+            E & 4            
+        \end{tabular}
+    \end{center}
+    and $\beta$ is a discounting factor $0 < \beta < 1$.
+
+    As always, let 
+    \[x_A = \E\left[\sum_{n=0}^{T-1} \beta^n \phi(x_n) \right]\]
+    
+    How do we generalize to all states? 
+    
+    Once again we have special case $x_D = 0$. Now consider $x_A$. On the first step, we reach $A$ with probability $P_{AA}$ and the payoff will be $(\phi(A) + \beta x_A)$ so 
+    \begin{align*}
+        x_A &= P_{AA} (\phi(A) + \beta x_A)\\ 
+        &\qquad + P_{AB}(\phi(A) + \beta x_B)\\ 
+        &\vdots 
+        &\qquad + P_{AE}(\phi(A) + \beta x_E)
+    \end{align*}
+    and analogously for all other states.
+
+\section{Oct 07}
+    \textbf{Example:} Let's see a case where first step analysis fails: 
+
+    Let $S_{n+1} = S_n + X_{n+1}$ with $\P(X_{n+1} = 1) = p$ and $\P(X_{n+1} = -1) = q$ and $p> q$.
+
+    \begin{center}
+        \begin{tikzpicture}[-> , >= stealth, shorten >=2pt, line width =0.5 pt,
+        node distance=2 cm]
+            \node [circle, draw] (zero) {$0$};
+            \node [circle, draw, right of=zero] (one) {$1$};
+            \node [circle, draw, right of=one] (two) {$2$};
+            \node [circle, draw, right of=two] (three) {$3$};
+            \node [right of=three] (dots) {$\dots$};
+            
+            \path (zero) edge[loop left] node[left]{$1$} (zero); 
+            \path (one) edge[bend left] node[below]{$q$} (zero);
+            \path (one) edge[bend left] node[above]{$p$} (two);
+            \path (two) edge[bend left] node[below]{$q$} (one);
+            \path (two) edge[bend left] node[above]{$p$} (three);
+            \path (three) edge[bend left] node[below]{$q$} (two);
+            \path (three) edge[bend left] node[above]{$p$} (dots);
+            \path (dots) edge[bend left] node[below]{$q$} (three);
+        \end{tikzpicture}
+    \end{center}
+
+    What is the probability $x_k$ that the random walk reaches $0$ eventually given that $S_0 = k$ and assuming $p > q$. 
+    
+    From first-step analysis, 
+    \[x_k = px_{k+1} + qx_{k-1}\]
+    for all $k \geq 1$ with $x_0 = 1$. 
+
+    The characteristic equation is $r^2 = pr^2 + q \implies r = \{1, \frac{q}{p}\}$ 
+
+    So the general solution is 
+    \[x_k = Ar_1^k + Br_2^k = A + B \left(\frac{q}{p}\right)^k\]
+    where $A, B$ are constants. 
+
+    Plugging in the boundary condition, $A + B = 1$ so 
+    \[x_k = 1 + B\left[\left(\frac{q}{p}\right)^k - 1\right]\] 
+
+    But clearly, $0 \leq x_k \leq 1$ so $0 \leq B \leq 1$. But now $B$ cannot be uniquely determined -- \emph{every} such $B$ satisfies the boundary condition. What do we do now? 
+
+    \emph{Option 1:} Artificially fix a large number $N$ and consider the $\{x_k\}_0^N$. The solution to the difference equation using first-step analysis will depend on $N$ so just let $N \to \infty$ and obtain $x_k$.
+
+    \emph{Option 2:} Observe that (heuristically) $x_k \to 0$ as $k \to \infty$. (Rigorous follows from $p > q$ and some work).
+
+    In either approach, we find $B = 1$ and 
+    \[x_k = \left(\frac{q}{p}\right)^k\] 
+
+    Both options work but both require some model-specific information which is not ideal. 
+
+    Let's try to find a way to fix the first step analysis to determine the unique solution. 
+
+    Consider a Markov chain with state space $\S$ and transition matrix $P$. Let $A \sub S$. 
+
+    We define the \emph{hitting time} of $A$ as 
+    \[T^A = \inf\{n \geq 0: X_n \in A\}\]
+    with the convention that $\inf \emptyset = \infty$. 
+
+    We want 
+    \begin{align*}
+        h^A(x) &= \P^x(T^A < \infty), 
+        d^A(x) = \E^x[T^A]
+    \end{align*}
+
+    \begin{tbox}{\textbf{Theorem:} The vector $\{h^A(x): x \in \S\}$ is the minimal nonnegative solution of 
+        \[h(x) = \begin{cases}
+            \sum_{y \in \S} P_{xy}h(y) & x \notin A\\ 
+            1 & x \in A
+        \end{cases}\]
+        Similarly, $\{d^A(x): x \in \S\}$ is the minimal nonnegative solution of
+        \[d(x) = \begin{cases}
+            1 + \sum_{y \in \S} P_{xy} h(y) & x \notin A\\
+            0 & x \in A
+        \end{cases}\]}
+
+        \emph{Proof:} By the LTP, $\{h^A(x): x \in \S\}$ is certainly a solution. Now suppose $\{h(x): x \in \S\}$ is an arbitrary nonnegative solution. 
+
+        We want to show that $h(x) \geq h^A(x)$ for all $x \in \S$. 
+
+        If $x \in A$, $h(x) = h^A(x) = 1$. So choose $x \notin A$. 
+
+        Repeatedly applying the system of equations, we get:
+        \begin{align*}
+            h(x) &= \sum_{y \in \S} P_{xy} h(y)\\ 
+                &= \sum_{y \in A} P_{xy} h(y) + \sum_{y \notin A} P_{xy} h(y)\\ 
+                &= \sum_{y \in A} P_{xy} + \sum_{y \notin A} P_{xy} \left[\sum_{z \in A} P_{yz} + \sum_{z \notin A} P_{yz} h(z)\right]\\
+                &= \sum_{y \in A} P_{xy} + \sum_{y \notin A} \sum_{z \in A} P_{xy} P_{yz} + \sum_{y \notin A} \sum_{z \notin A} P_{xy} P_{yz} h(z)\\
+                &= P^x(T^A = 1) + P^x(T^A = 2) + \sum_{y \notin A} \sum_{z \notin A} P_{xy} P_{yz} h(z)\\ 
+                &\vdots
+        \end{align*}
+
+        So 
+        \[h(x) \geq \P^x(T^A \leq n)\]
+        for all $n$. Letting $n \to \infty$, we get 
+        \[h(x) \geq \P^x(T^A < \infty) = h^A(x)\]
+
+        For $\{d^A(x)\}$, by the tower property of conditional expectation, it is a solution to the corresponding system of equations. We take $\{d(x): x \in \S\}$ to be an arbitrary nonnegative solution and want to show that $d(x) \geq d^A(x)$. 
+
+        Again $x \in A$ is trivial and for $x \notin A$, 
+        \begin{align*}
+            d(x) &= 1 + \sum_{y\notin A} P_{xy} d(y)\\ 
+            &= 1 + P_{xy} \left[1 + \sum_{z \notin A} P_{yz}h(z)\right]\\ 
+            &= P^x(T^A \geq 1) + P^x(T^A \geq 2) + \sum_{y\notin A} \sum_{z \notin A} P_{xy} P_{yz} d(z) 
+        \end{align*}
+
+        So, for all $N$, 
+        \[d(x) \geq \sum_{n=1}^{N} P^x(T^A \geq n)\]
+
+        And as $n \to \infty$, we know $T^A$ takes values in $\{0, 1, 2, \dots\} \cup \{\infty\}$ so 
+        \[\sum_{n=1}^{\infty} \ind_{\{T^A\geq n\}} = T^A\]
+        and taking the expectation of both sides, we are done. 
+    \end{tbox}
+
+    \textbf{Example:} Consider the MC $X$ with state space $\S = \{0, 1, 2, \dots\}$. Assume $P_{00} = 1$ and for all $x > 0$, 
+    \[P_{xy} = \begin{cases}
+        1/2 & y= 0\\ 
+        1/4 & y = x + 1\\ 
+        1/4 & y = x - 1\\ 
+        0 & \text{otherwise}
+    \end{cases}\] 
+    modelled by 
+    
+   \begin{center}
+   \begin{tikzpicture}[-> , >= stealth, shorten >=2pt, line width =0.5 pt,
+    node distance=2 cm]
+        \node [circle, draw] (zero) {$ 0 $};
+        \node [circle, draw, right of=zero] (one) {$ 1 $};
+        \node [circle, draw, right of=one] (two) {$ 2 $};
+        \node [circle, draw, right of=two] (three) {$ 3 $};
+        \node [right of=three] (dots) {$\dots$};
+    
+        \path (zero) edge[loop left] node[left]{$1$} (zero); 
+
+        \path (one) edge[bend left] node[above]{$1/4$} (two);
+        \path (two) edge[bend left] node[above]{$1/4$} (three);
+
+        \path (one) edge[bend left] node[below]{$3/4$} (zero);
+        \path (two) edge[bend left] node[below]{$1/4$} (one);
+        \path (three) edge[bend left] node[below]{$1/4$} (two);
+
+        \draw (two) edge[bend left=90] node[below]{$1/2$} (zero);
+        \draw (three) edge[bend left=90] node[below]{$1/2$} (zero);
+   \end{tikzpicture}
+   \end{center}
+    
+    Let $T = \inf\{n \geq 0: X_n = 0\}$. We are interested in the average duration $d(x) = \E^x[T]$
+
+    By the Theorem, $\{d(x): x \in \S\}$ is the minimal nonnegative solution to
+    \begin{align*}
+        d(x) &= 1 + \frac{1}{2}d(0) + \frac{1}{4}d(x + 1) + \frac{1}{4}d(x - 1)\\ 
+        &= 1 + \frac{1}{4}d(x + 1) + \frac{1}{4}d(x - 1)
+    \end{align*}
+    for $x \geq 1$ with $d(0) = 0$. 
+
+    If we consider $x$ an index, these equations are just a difference equation! (Excepting the ``1'' term which make it no longer homogeneous). 
+    
+    This allows us to follow the standard approach:
+    \begin{enumerate}
+        \item Find a particular sequence, ignoring the boundary condition. 
+        
+        Here, $d_p(x) = 2$
+
+        \item FInd the general solution. 
+        
+        Here, $d_g(x) = d(x) - d_p(x)$ satisfies 
+        \[d_g(x) = \frac{1}{4}d_{s}(x + 1) + \frac{1}{4}d_s(x - 1)\] 
+
+        So $r = \frac{1}{4}r^2 + \frac{1}{4} \implies r = 2 \pm \sqrt{3}$ and 
+        \[d_g(x) = Ar_1^x + Br_2^x = A(2 + \sqrt{3})^x + B(2 - \sqrt{3})^x\] 
+        for constants $A, B$
+
+        3. Fit the boundary condition. 
+
+        Here, $d(x) = d_g(x) + d_p(x)$ with $d(0) = 0$ so $A + B = -2$ and 
+        \[d(x) = A\left[(2 + \sqrt 3)^x - (2 - \sqrt 3)^x\right] + 2\left[1 - (2 - \sqrt 3)^x\right]\]
+
+        Since $d(x)$ is nonnegative, $A \geq 0$ and the minimality of $d$ implies $A = 0$ so 
+        \[d(x) = 2[1 -(2 - \sqrt 3)^x]\] 
+    \end{enumerate}
+
+    \textbf{Example (Branching Process):} Consider a stochastic model for population growth. Let $X_n$ denote the size of the population in the $n$-th generation. 
+
+    Each individual independently reproduces a random number of offspring:
+    \[X_{n+1} = \sum_{i=1}^{X_n} Z_i^{(n)} \]
+    where $\{Z_i^{(n)}\}$ are iid with distribution 
+    \[\P(Z = k) = p_k, \quad k = 0, 1, 2, \dots, \quad \sum_{k=0}^\infty p_k = 1\] 
+
+    Assume $X_0 = 1$ and let $T = \ind\{n \geq 0: X_n = 0\}$ be the time to extinction. We are interested in $\P(T < \infty)$ (will the population ever go extinct?)
+
+    Define for each $x \geq 0$, 
+    \[H(x) = P^x(T_0 < \infty)\]
+    which is the probability of extinction given initial population $x$. We want $\pi = H(1)$. 
+
+    Again be the theorem, $\{H(x): x \geq 0\}$ is the minimal nonnegative solution to 
+    \[H(x) = \sum_{k=0}^\infty P_{xk} H(x)\]
+    for $x \geq 1$ with $H(0) = 1$, where $P_{xk} = \P(X_{n+1} = k \; | \; X_n = x)$ is the transition probability. 
+
+    The key observation is that this system can be reduced to a single equation:
+    \[H(x) = [H(1)]^x = \pi^x\]
+
+    Therefore, we expect $\pi$ to satisfy 
+    \[\pi = \sum_{k=0}^\infty P_{1k} \pi^k = \sum_{k=0}^\infty P_{k}\pi^k = \phi(\pi) \tag{*}\]
+
+    And $\forall \pi$ that satisfy the above, 
+    \[H(x) = \pi^x = \left[\sum_{i=0}^\infty P_i \pi^i\right]^x = \sum_{k=0}^\infty P_{xk} \pi^k = \sum_{k=0}^\infty P_{xk} H(k)\] 
+    for $x \geq 0$ where the coefficient of $\pi^k$ is the sum of all possible ways to have $k$ offspring in total. Therefore, $\pi$ must be the guaranteed minimal solution.
+    
+    To solve $(*)$, we need to study $\phi$. 
+    \begin{align*}
+        \phi(0) = p_0\\ 
+        \phi(1) = 1\\ 
+        \phi'(0) = p_1\\ 
+        \phi'(1) = \sum_{k=0}^\infty kp_k = \E[Z]
+    \end{align*}
+    so $\phi$ is increasing and convex. 
+    
+    Excluding the trivial case $p_0 = 0$ (the population will never go extinct), we assume $p_0 > 0$. 
+
+    And with some calculus, 
+    \begin{enumerate}
+        \item If $p_0 > 0$ and $\E[Z] \leq 1$, then $\pi = 1$
+        \item If $p_0 > 0$ and $\E[Z] > 1$, then $0 < \pi < 1$ 
+    \end{enumerate}
+
+    To give a numerical example, assume $p_k = p(1- p)^k$ for $k \geq 0$ where $p \in (0, 1)$ is a constant. This is equivalent to $Z +1$ be geometrically distributed with parameter $p$ so 
+    \begin{align*}
+        \E[Z] &= \frac{1}{p} - 1,\\ 
+        \phi(\pi) &= \sum_{k=0}^\infty p(1- p)^k \pi^k\\ 
+        &= \frac{p}{1 - (1 - p)\pi}
+    \end{align*}
+    
+    $\pi = \phi(\pi)$ has two roots, $\{1, \frac{p}{1 - p}\}$ 
+
+    Therefore, if $p \geq 1/2$ (or equivalently $\E[Z]\leq 1$), we have $\pi_1 \leq \pi_2$ and $\pi = 1$. On the other hand, if $p < 1/2$ (or $\E[Z] > 1)$, $\pi_1 > \pi_2$ and $\pi = \pi_2 < 1$
+
+\section{Oct 09}
+    \textbf{Recall (Branching Process):} 1st step analysis gives us the \emph{hitting probability} which guarantees a minimal nonnegative solution. 
+
+    Take the case of a population where each member has a random number of offspring $Z$ where $\P(Z = 0) = p_0, \P(Z = 1) = p_1, \dots$. 
+
+    We can define $\pi$ to be the probability of extinction. Clearly, 
+    \begin{align*}
+        \pi &= \sum_{k=0}^\infty \P(Z = k)\pi^k\\ 
+            &= p_0 + p_1\pi + p_2\pi^2 + \dots\\ 
+            &= \phi(\pi)
+    \end{align*}
+
+    This is called a \textbf{moment generating function}. 
+    
+    We have $\phi(0) = p_0$ and $\phi(1) = 1$. We can show that $\phi$ is increasing and convex.
+
+    And then we can show that if $\phi'(1) < 1$, then $\phi$ has a solution less than $\pi = 1$ (a minimal solution). Otherwise, $\phi(1)$ is the minimal solution.
+
+    Let's calculate. 
+    \begin{align*}
+        \phi'(\pi) &= p_1 + 2p_2 \pi + 3p_3\pi^2 + \dots\\
+        \phi'(1) &= p_1 + 2p_2 + 3p_3 + \dots\\ 
+            &= \E[Z]
+    \end{align*}
+    so 
+    $\phi'(1) > 1 \iff \E[Z] > 1$. Hence, the probability the population goes extinct depends on the expected number of offspring (not surprising!)
+
+    Now suppose $Z + 1$ is geometric with parameter $p$. Then
+    \begin{align*}
+        \P(Z = 0) &= p\\ 
+        \P(Z = 1) &= pq\\ 
+        \P(Z = 2) &= pq^2\\
+        &\vdots
+    \end{align*}
+    where $q = (1 - p)$ and $0 < p < 1$. 
+
+    So 
+    \begin{align*}
+        \phi(\pi) &= p + pq\pi + pq^2\pi^2 + \dots\\ 
+            &= p\left(1 + q\pi + (q\pi)^2 + (q\pi)^3 + \dots\right)\\ 
+            &= \frac{p}{1 - q\pi}
+    \end{align*}
+    
+    $\pi = \frac{p}{1 - q\pi}$ is a quadratic with two roots: $\pi = \{1, \; \frac{p}{q}\}$. 
+
+    Therefore, 
+    \[\pi_2 < 1 \iff o< q \iff p < \frac{1}{2} \iff \E[Z + 1] = \frac{1}{p} > Z \iff \E[Z] > 1\]
+    exactly as before. 
+
+\subsection*{Martingales}
+    \textbf{Martingale:} A stochastic process that on average stays constant 
+
+    \textbf{Example (Random Walk):} 
+    \[\begin{cases}
+        S_0 = x\\ 
+        S_{n+1} = S_n + X_{n+1}
+    \end{cases} \iff S_{n+1} = x + \sum_{k=1}^{n+1} X_{n+1} \]
+    where $X_n$ are iid R.V. with (say) $\P(X_n = \pm 1) = \frac{1}{2}$ 
+
+    But 
+    \[\E[S_{n+1} \; | \; S_n, S_{n-1}, \dots, S_0] = \E[S_{n+1} \; | \; S_n] = S_n\]
+    so $S_n$ is a martingale.
+
+    \textbf{Definition:} With
+    \begin{enumerate}
+        \item $\F_n= (Z_0, Z_1, \dots, Z_n)$ a is a \emph{filtration process} (reference) containing the information up to time $n$ for $Z = \{Z_0, Z_1, \dots\}$.
+        \item $\{X_0, X_1, \dots\}$ is \emph{adapted} to $Z$, i.e. $X_n = X_n(Z_0, Z_1, \dots, Z_n)$
+    \end{enumerate}
+    then $\{X_n\}$ is a \textbf{martingale} (with respect to $Z$) if 
+    \[\E[X_{n+1} \; | \; \F_n] = X_n\] 
+
+    \textbf{Example:} 
+
+    \begin{center}
+    \begin{tikzpicture}[-> , >= stealth, shorten >=2pt, line width =0.5 pt,
+    node distance=2 cm]
+        \node [circle, draw] (zero) {$ x_0 $};
+        \node [circle, draw, right of=zero] (one) {$ x_1 $};
+        \node [circle, draw, right of=one] (two) {$ x_2 $};
+        \node [right of=two] (dots) {$\dots$};
+        \node [right of=dots] (n) {$ x_n $};
+        \node [right of=n] (dots2) {$\dots$};
+
+        \path (zero) edge node[below]{$Z_1$} (one);
+        \path (one) edge node[below]{$Z_2$} (two);
+        \path (two) edge (dots);
+        \path (dots) edge (n);
+        \path (n) edge (dots2);
+    
+        \node [rectangle, draw, above of=zero] (u0) {$ u_0 $};
+        \node [rectangle, draw, above of=one] (u1) {$ u_1 $};
+        \node [rectangle, draw, above of=two] (u2) {$ u_2 $};
+        \node [rectangle, draw, above of=n] (un) {$ u_n $};
+
+        \path (u0) edge (zero); 
+        \path (u1) edge (one);
+        \path (u2) edge (two);
+        \path (un) edge (n);
+    \end{tikzpicture}
+    \end{center}
+
+    So 
+    \[X_{n+1} = f(X_n, u_n, Z_{n+1})\] 
+    and we call $\{X_n\}$ a \emph{Markov Controlled Process}
+
+    \textbf{Example:} Let $S_n$ be the standard random walk ($S_{n+1} = x_0 + \sum_{k=1}^{n+1} X_k$) such that $X_n$ are iid with $\E[X_n] = \mu$. 
+
+    Define $Y_n = S_n - n \mu$. We claim $(Y_n)$ is a Martingale W.R.T $(X_n)$: 
+    \begin{align*}
+        \E[Y_{n+1} \; | \; \F_n] &= \E[S_{n+1} - (n + 1)\mu \; | \; \F_n]\\ 
+        &= \E[S_{n+1} \; | \; \F_n] - (n + 1)\mu\\
+        &= \E[S_n + X_{n+1} \; | \; \F_n] - (n + 1)\mu\\
+        &= \E[S_n \; | \; \F_n] + \E[X_{n+1} \; | \; \F_n] - (n + 1)\mu\\
+        &= \E[S_n \; | \; \F_n] + \mu - (n + 1)\mu\\
+        &= S_n + \mu - (n + 1)\mu\\ 
+        &= S_n - n\mu\\ 
+        &= Y_n
+    \end{align*}
+
+\section{Oct 11}
+    \textbf{Example (Wald's Martingale):} Let $X = \{X_0, X_1, \dots\}$ be a sequence of iid random variables and $\theta \in \R$ a constant. Let $\phi(\theta) = \E[e^{\theta X_1}]$ (the moment generating function) and 
+    \[S_n = x_0 + \sum_{i=1}^{n} X_i \]
+    for some $x_0 \in \R$ and all $n \geq 0$. Then the process 
+    \[M_n = \frac{1}{\phi^n(\theta)} e^{\theta S_n}\]
+    is a martingale with respect to the reference process $\{X_0, X_1, \dots\}$. It is not hard to verify this claim. 
+
+    The adaptiveness is trivial and 
+    \[\E[M_{n+1} \; | \; \F_n] = \frac{1}{\phi^{n+1}(\theta)} \E[e^{\theta S_{n+1}} \; | \; \F_n] = \frac{1}{\phi^{n+1}(\theta)} e^{\theta S_n} \E[e^{\theta X_{n+1}} \; | \; \F_n]\]
+
+    Since $X_{n+1}$ is independent of $\F_n = (X_0, X_1, \dots, X_n)$ and has the same distribution as $X_1$, we have 
+    \[\E[e^{\theta X_{n+1}} \; | \; \F_n] = \E[e^{\theta X_{n+1}}] = \E[e^{\theta X_1}] = \phi(\theta)\]
+
+    Therefore, $\E[M_{n+1} \; | \; \F_n] = F_n$ and $\{M_n\}$ is a martingale. 
+
+    \textbf{Example (Martingale Transform):} Let $M = \{M_0, M_1, M_2, \dots\}$ be a martingale with respect to some reference process $\{Z_0, Z_1, \dots\}$. Let $Y = \{Y_1, Y_2, \dots\}$ be a process such that $Y_n$ is a function of $\F_{n-1}$ for all $n \geq 1$ (such processes are said to be \emph{predictable}). 
+
+    Define 
+    \[X_n = \sum_{i=1}^{n} Y_i(M_i - M_{i-1}) = (Y \bullet M)_n \]
+    for all $n\geq 0$. Then $\{X_n\}$ is a martingale with $X_0 = 0$. 
+
+    The verification is not hard: The adaptiveness is trivial and 
+    \begin{align*}
+        \E[X_{n+1} \; | \; \F_n] &= X_{n+1} + \E[Y_{n+1}(M_{n+1} - M_n) \; | \; \F_n]\\
+        &= X_{n+1} + Y_{n+1} \E[M_{n+1} - M_n \; | \; \F_n]\\
+        &= X_{n+1}
+    \end{align*}
+
+    Note that the predictability of $Y$ is the only reason we can take $Y_{n+1}$ outside the conditional expectation. 
+
+    In general, this procedure generates many martingales from a given martingale. Moreover, this is indeed a preliminary version of stochastic integral if $M_{n+1} - M_n$ is viewed as the differential $dM$ of the martingale $M$.
+
+\subsection*{Optional Sampling}
+    \textbf{Stopping time:} Let $Z = \{Z_0, Z_1, Z_2, \dots\}$ be a reference process. A mapping $\tau: \Omega \to \{0, 1, 2, \dots\} \cup \{\infty\}$ is said to be a \emph{stopping time} if for every $n$, the indicator random variable $\ind_{\tau = n}$ is a function of $\F_n = (Z_0, Z_1, \dots, Z_n)$. 
+    
+    Heuristically, the decision to stop at time $\tau$ is a stopping time iff the decision is based only on historical information. 
+
+    \textbf{Example:} Let $X = \{X_n\}$ be adapted WRT $Z$ and $a \in \R$ constant. Define 
+    \[\tau = \inf\{n \geq 0: X_n \geq a\}, \quad \sigma = \sup\{n\geq 0: Xn \geq a\}\]
+
+    Both are random times but $\tau$ is a stopping time while $\sigma$ is not.
+
+    \begin{tbox}{\textbf{Optional Sampling Theorem:} Let $X = \{X_0, X_1, \dots\}$ be a martingale and $\tau$ an arbitrary stopping time. Then 
+        \[E[X_{\tau \land n}] = \E[X_0]\]
+        for every $n$. If $X$ is a supermartingale or submartingale, then the equality is replaced by $\leq$ or $\geq$ respectively.}
+        \emph{Proof:} We will only present the martingale case as the others are similar.
+
+        Fix $n \geq 0$. Then 
+        \[X_{\tau \land (n+1)} = X_{\tau} \ind_{\tau \leq n} + X_{n+1} \ind_{\tau > n}\]
+
+        The key observation is 
+        \[\ind_{\tau > n} = 1 - \ind_{\tau \leq n}\] 
+        is a function of $\F_n$. Therefore, 
+        \[\E[X_{n+1} \ind_{\tau > n} \; | \; \F_n] = \ind_{\tau > n} \E[X_{n+1} \; | \; \F_n] = \ind_{\tau > n} X_n\]
+
+        By the tower property, taking expectation on both sides we have 
+        \[\E[X_{n+1} \ind_{\tau > n}] = \E[X_n \ind_{\tau > n}]\]
+
+        In particular, 
+        \[\E[X_{\tau \land (n+1)}] = \E[X_{\tau} \ind_{\tau \leq n}] + \E[X_{n+1} \ind_{\tau > n}] = \E[X_{\tau \land n}]\]
+
+        Since this is true for all $n$, the claim follows readily as $\tau \land 0 = 0$. 
+    \end{tbox}
+
+    \textbf{Remark:} Ideally, we would have $\E[X_{\tau}] = \E[X_0]$ when $X$ is a martingale in the Optional Sampling Theorem. However, one cannot hope this to be true in general. For example, let $X$ be a symmetric simple random walk and $\tau = \inf\{n \geq 0: X_n = 1\}$. Then $\E[X_{\tau}] = 1$ while $\E[X_0] = 0$.
+
+    Therefore, we add conditions to ensure the $\E[X_{\tau}] = \E[X_0]$:
+    \begin{enumerate}
+        \item The stopping time is bounded, i.e. $\P(\tau \leq t) = 1$ for some $t \in \N$
+        \item The process $\{X_n\}$ is bounded for $n = 1, \dots, \tau$
+    \end{enumerate}
+
+    In this course, some examples will not satisfy these conditions but it can nonetheless be shown that $\E[X_{\tau}] = \E[X_0]$. As we are not interested in rigor, \emph{assume that the equality holds if $X$ is a martingale and $\tau$ is a stopping time}.
+
+\section{Oct 16}
+    \tbf{Definition:}
+    \begin{itemize}
+        \item If $\E[X_{n+1} \; | \; \F_n] = X_n$, we say the process is a martingale 
+        \item If $\E[X_{n+1} \; | \; \F_n] \leq X_n$, we say the process is a supermartingale
+        \item If $\E[X_{n+1} \; | \; \F_n] \geq X_n$, we say the process is a submartingale
+    \end{itemize}
+
+    Further, using the Law of total expectation, $\E[\E[X_{n+1} \; | \; \F_n]] = \E[X_{n+1} \; | \; \F_n]$ so 
+    \[\begin{cases}
+        \E[X_{n+1}] = \E[X_n] & \text{ if martingale}\\
+        \E[X_{n+1}] \geq \E[X_n] & \text{ if submartingale}\\ 
+        \E[X_{n+1}] \leq \E[X_n] & \text{ if supermartingale} 
+    \end{cases}\]
+
+    \tbf{Recall (Optional Sampling Theorem):} If $(X_0, X_1, \dots)$ is a martingale and $\tau$ is a stopping time, 
+    \[\E[X_{\tau \land n}] = \E[X_0] \quad \forall n\] 
+    And under some conditions, 
+    \[\E[X] = \lim_{n \to \infty} \E[X_{\tau \land n}] = \E[X_{\tau}]\]
+
+    Specifically, these equalities hold if
+    \begin{enumerate}
+        \item if $\tau$ is bounded, i.e. $\P(\tau \leq N) = 1$ for fixed $N \in \N$.
+        \item if $(X_n)$ is bounded on $n = 1, \dots, \tau$
+    \end{enumerate}
+    
+    \textbf{Example (Gambler's Ruin):} Let $X = \{X_0, X_1, \dots\}$ be iid RVs with 
+    \begin{align*}
+        \P(X_1 = 1) &= p\\
+        \P(X_1 = -1) &= q = 1 - p
+    \end{align*}
+    for $p \in (0, 1)$. One can think of $X_n$ as the net winning of a gambler at the $n$-th round. The gambler starts with \$ $x$ and he will leave if he reaches \$ $0$ or \$ $N$ for $0 < x < N$. The wealth process is 
+    \[S_n = x + \sum_{i=1}^{n} X_i, \quad n \geq 0 \]
+
+    From now on, we will let $\{X_n\}$ be the reference process. Then $S = \{S_0, S_1, \dots\}$ is adapted. Define the stopping time 
+    \[\tau = \inf\{n \geq 0: S_n \in \{0, N\}\}\]
+
+    We are interested in $\P(S_{\tau} = 0)$. 
+
+    \begin{itemize}
+        \item CASE 1: $p = q$. 
+        
+        The wealth process is a martingale itself. By the Optional Sampling Theorem, 
+        \[\E[S_{\tau}] = \E[S_0] = x\] 
+
+        And $0 \leq S \leq N$ until the game ends (Condition 2) but $S_{\tau} \in \{0, N\}$ so 
+        \[x = \E[S_{\tau}] = N\P(S_{\tau} = N)\] 
+
+        It follows that 
+        \[\P(S_{\tau} =0 ) = 1 - \P(S_{\tau} = N) = 1 - \frac{x}{N} = \frac{N - x}{N}\]
+
+        \item CASE 2: $p \neq q$. 
+        
+        Now the wealth process is not a martingale. Consider Wald's Martingale 
+        \[M_n = \frac{1}{\phi^n(\theta)} e^{\theta S_n}\]
+        for fixed $\theta$ and $n \geq 0$ where 
+        \[e^{\theta x} = \E[M_0] = \E[M_{\tau}] = \E\left[\frac{1}{\phi^{\tau}(\theta)}e^{\theta S_{\tau}}\right]\]
+
+        However now $\phi^{\tau}(\theta)$ cannot be taken outside the expectation. Since $\theta$ is arbitrary, choose $\theta$ such that $\phi(\theta) = 1$, i.e. $\theta \in \{0, \log(p/q)\}$. With $\theta = 0$, we have a constant martingale,  which is useless. 
+
+        Therefore, let $\theta = \log(q/p)$ so 
+        \[M_n = \left(\frac{q}{p}\right)^{S_n} \]
+        is a martingale and 
+        \begin{align*}
+            \left(\frac{q}{p}\right)^x &= \E[M_0] = \E[M_{\tau}] = \E\left[\left(\frac{q}{p}\right)^{S_{\tau}} \right]\\ 
+            &= \P(S_{\tau} = 0) + \left(\frac{q}{p}\right)^N \P(S_{\tau} = \left(\frac{q}{p}\right)^N)
+        \end{align*}
+
+        And $\P(S_{\tau} = 0) + \P(S_{\tau} = N) = 1$ so 
+        \[\P(S_{\tau} = 0) = \frac{(q/p)^x - (q/p)^N}{1 - (q/p)^N}\]
+
+        \textbf{Remark:} notice $1 < M_n < (q/p)^N$ up to time $\tau$ so we have again satisfied Condition 2.
+    \end{itemize}
+
+    We can define analogous OST for sub and supermartingales:
+    \begin{itemize}
+        \item Submartingale: $\E[X_{\tau \land n}] \geq \E[X_0]$
+        \item Supermartingale: $\E[X_{\tau \land n}] \leq \E[X_0]$
+    \end{itemize}
+
+    \subsection*{Stochastic Optimization}
+        There are two main branches in Stochastic Optimization:
+        \begin{enumerate}
+            \item Optimal Stopping (e.g. Secretary Problem)
+            \item Optimal Control (e.g. utility maximization, Kelly criterion)
+        \end{enumerate}
+
+        Let's solve some of them with Martingales. 
+
+        \tbf{Optimal Stopping (Finite Horizon):} Let $(X_0, X_1, \dots)$ be some process and $N$ a fixed terminal time. 
+        \[V(x) = \max_{0 \leq \tau \leq N} \E\left[H(X_{\tau}) + \sum_{k=1}^{\tau-1} G(X_k) \;\bigg\vert X_0 = x\right]\]
+        where $H(X_{\tau})$ is a terminal cost and $\sum_{k=1}^{\tau-1} G(X_k)$ is a running cost. 
+
+        We can define this recursively
+        \[V_n(x) =\max_{0 \leq \tau \leq N} \E\left[H(X_{\tau}) + \sum_{k=1}^{\tau-1} G(X_k) \;\bigg\vert S_n = x\right] \]
+        so our DPE is 
+        \[\begin{cases}
+            V_n(x) = \max\left(H(x), \E[G(x) + V_{n+1}(X_{n+1}) \; | \; X_n = x]\right)\\ 
+            V_N(x) = H(x)
+        \end{cases}\]
+
+\section{Oct 18}
+\subsection*{Optimal Stopping (Finite Horizon)}
+    Let $(X_0, X_1, \, \dots)$ a Markov chain with $P_{xy}$ transition matrix. 
+    
+    \[V(x) = \max\left(H(x), E^x[G(x) + V_{n+1}(X_{n+1})]\right)\]
+    where $N$ is a fixed terminal time, $\tau$ is a stopping time, and $E^x$ is the expectation given $X_0 = x$.
+
+    \begin{center}
+    \begin{tikzpicture}[-> , >= stealth, shorten >=2pt, line width =0.5 pt,
+    node distance=2 cm]
+        \node [circle, draw] (zero) {$ X_0 $};
+        \node [circle, draw, right of=zero] (one) {$ X_1 $};
+        \node [circle, draw, right of=one] (two) {$ X_2 $};
+        \node [right of=two] (dots) {$\dots$};
+        \node [right of=dots] (n1) {$ X_{n-1} $};
+        \node [right of=n1] (n) {$ X_n $};
+
+    
+        \path (zero) edge node[below]{$P_{01}$} (one);
+        \path (one) edge node[below]{$P_{12}$} (two);
+        \path (two) edge (dots);
+        \path (dots) edge (n1);
+        \path (n1) edge (n);
+        
+        \node[red, below of=zero] (G0) {$G(x_0)$};
+        \node[red, below of=one] (G1) {$G(x_1)$};
+        \node[red, below of=two] (G2) {$G(x_2)$};
+        \node[red, below of=n1] (Gn1) {$G(x_{n-1})$};
+        \node[red, below of=n] (Gn) {$H(x_{\tau})$};
+        
+        \path (G0) edge[red] (zero);
+        \path (G1) edge[red] (one);
+        \path (G2) edge[red] (two);
+        \path (Gn1) edge[red] (n1);
+        \path (Gn) edge[red] (n);
+    \end{tikzpicture}
+    \end{center}
+
+    We can define value functions 
+    \[V_n(x) = \max_{n \leq \tau \leq N} \E\left[H(x_{\tau}) + \sum_{k=n}^{\tau - 1} G(x_k) \bigg\vert X_n = x\right]\] 
+    for all $0 \leq n \leq N$ and all $x$ with $V(x) = V_0(x)$. 
+
+    At time $n$ with $X_n = x$, we can 
+    \begin{enumerate}
+        \item Stop, with payoff $H(x)$
+        \item Continue, with payoff 
+        \[G(x) + \E[V_{n+1}(x_{n+1}) \;|\; X_n = x] = G(x) + \sum_y P_{xy} V_{n+1}(y) \]
+    \end{enumerate}
+    where $G(x)$ is the payoff at time $n$ and $V_{n+1}(y)$ is the optimal payoff for $n+1$ given $X_{n+1} = y$.
+
+    Hence, our DPE is
+    \[\begin{cases}
+        V_n(x) = \max\left\{H(x), G(x) + \sum_y P_{xy} V_{n+1}(y)\right\}\\ 
+        V_N(x) = H(x)
+    \end{cases}\]
+
+    At last, we are ready to justify DP. 
+
+    \begin{tbox}{\textbf{Theorem:} Suppose $\{v_0(x), v_1(x), \dots, v_N(x)\}$ is a solution to the DPE. Then $v_n(x) = V_n(x)$ for all $n$. Moreover, define $\tau^* = \inf \{n \geq 0: V_n(x) = H(x)\}$. Then $\tau^*$ is an optimal stopping time.}
+        \emph{Proof:} Define 
+        \[M_n = \sum_{k=0}^{n- 1} G(x_k) + v_n(x_n)\]
+        that is, $M_n$ is a Markov Chain which behaves optimally for $m \geq n$. 
+
+        We claim that $\{M_n\}$ is a supermartingale. 
+        \begin{align*}
+            \E[M_{n+1} \; | \; \F_n] &= \E\left[\sum_{k=0}^{n} G(x_k) + v_{n+1}(x_n) \; | \; \F_n\right]\\
+            &= \sum_{k=0}^n G(x_k) + \E[v_{n+1}(x_{n+1}) \; | \; \F_n] \qquad \qquad (x_{0:n} \in \F_n)\\
+            &= \sum_{k=0}^n G(x_k) + \E[v_{n+1}(x_{n+1}) \; | \; x_n] \qquad\qquad (\text{Markov property}) \\
+            &= \sum_{k=0}^{n-1} G(x_k) + G(x_n) + \E[v_{n+1}(x_{n+1}) \; | \; x_n]\\
+            &\leq \sum_{k=0}^{n-1} G(x_k) + v_n(x_n) \hspace{1in} (\text{DPE})\\
+            &= M_n
+        \end{align*}
+
+        Then, by the Optional Sampling Theorem, for any $0\leq \tau \leq N$, $\E[M_{\tau}] \leq \E[M_0]$. 
+
+        Therefore, 
+        \[\E\left[\sum_{k=0}^{\tau - 1} G(x_k) + v_{\tau}(x_{\tau})\right] \leq v_0(x_0)\]
+
+        But in the DPE, clearly $v_n(x) \geq H(x)$ for all $n$ so 
+        \begin{align*}
+            \E\left[\sum_{k=0}^{\tau - 1} G(x_k) + H(x_{\tau})\right] &\leq \E\left[\sum_{k=0}^{\tau - 1} G(x_k) + v_{\tau}(x_{\tau})\right]\\ 
+                &\leq v_0(x_0) 
+        \end{align*}
+        and
+        \[v_0(x_0 \geq V_0(x))\]
+
+        But if $\tau^* = \inf\{n \geq 0: v_n(x) = H(x)\}$, then clearly $v_{\tau^*}(x_{\tau^*}) = H(x_{\tau^*})$ so 
+        \[\E\left[\sum_{k=0}^{\tau - 1} G(x_k) + H(x_{\tau})\right] = \E\left[\sum_{k=0}^{\tau - 1} G(x_k) + v_{\tau}(x_{\tau})\right]\] 
+
+        Finally, for $n < \tau^*$, $v_n(x_n) \neq H(x_n)$ so $v_n(x_n) = G(x_n) + \E[v_{n+1}(x_{n+1}) \; | \; x_n]$ so 
+        \[\sum{k=0}^{n-1} G(x_k) + v_{\tau^*}(x_{\tau^*}) = v_0(x_0)\]
+        and $M_n$ is a martingale. 
+        
+
+    \end{tbox}
+\end{document} 
+

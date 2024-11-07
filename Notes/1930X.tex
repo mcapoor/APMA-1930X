@@ -44,6 +44,7 @@
 \newcommand{\ans}[1]{\boxed{\text{#1}}}
 \newcommand{\vecs}[1]{\langle #1\rangle}
 \renewcommand{\hat}[1]{\widehat{#1}}
+
 \newcommand{\F}{\mathcal{F}}
 \renewcommand{\P}{\mathbb{P}}
 \newcommand{\R}{\mathbb{R}}
@@ -51,8 +52,10 @@
 \newcommand{\Z}{\mathbb{Z}}
 \newcommand{\N}{\mathbb{N}}
 \newcommand{\Q}{\mathbb{Q}}
+\renewcommand{\L}{\mathbb{L}}
 \renewcommand{\S}{\mathcal{S}}
 \newcommand{\ind}{\mathbbm{1}}
+
 \newcommand{\qed}{\quad \blacksquare}
 \newcommand{\brak}[1]{\left\langle #1 \right\rangle}
 \newcommand{\bra}[1]{\left\langle #1 \right\vert}
@@ -60,6 +63,9 @@
 \newcommand{\abs}[1]{\left\vert #1 \right\vert}
 \newcommand{\mfX}{\mathfrak{X}}
 \newcommand{\ep}{\varepsilon}
+
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\Var}{\text{Var}}
 
 \newcommand{\sub}{\subseteq}
 
@@ -79,7 +85,14 @@
     ]}
     {\end{tcolorbox}}
 
-    
+\newenvironment*{exercise}[1][red]{
+    \begin{tcolorbox}[
+        parbox=false,
+        colback=#1!5!white,
+        colframe=#1!75!black,
+        breakable
+    ]}
+    {\end{tcolorbox}}
 
 \title{APMA 1930X: Probability, Optimization, and Stochastic Calculus}
 \author{Milan Capoor}
@@ -2116,8 +2129,576 @@
         Finally, for $n < \tau^*$, $v_n(x_n) \neq H(x_n)$ so $v_n(x_n) = G(x_n) + \E[v_{n+1}(x_{n+1}) \; | \; x_n]$ so 
         \[\sum{k=0}^{n-1} G(x_k) + v_{\tau^*}(x_{\tau^*}) = v_0(x_0)\]
         and $M_n$ is a martingale. 
-        
-
     \end{tbox}
-\end{document} 
 
+\section*{Oct 21}
+    \tbf{Recall:} For Finite Horizon Optimal Stopping problems, we have 
+    \[V(x) = \max_{0 \leq \tau \leq N} \E\left[\int_{x_0}^x H(x_{\tau}) + \sum_{k=0}^{\tau - 1} G(X_k) \right]\] 
+    for $\tau^* = \min\{n \geq 0: v_n(x_n) = H(x_n)\}$. 
+
+    We can write a DPE 
+    \[\begin{cases}
+        v_N(x) = H(x)\\ 
+        \begin{aligned}
+            v_n(x)&= \max_{n \leq \tau \leq n} \E[H(x_{\tau}) + \sum_{k=n}^{\tau - 1} G(x_k)\; | \; x_n = x]\\ 
+            &= \max\left\{H(x), G(x) + \sum_y P_{xy} v_{n+1}(y)\right\}
+        \end{aligned}
+    \end{cases}\]
+
+\subsection*{Optimal Stopping (Infinite Horizon)} 
+    In infinite horizon case, the setup is very similar:
+    \[V(x) = \max_{0 \leq \tau} \E\left[H(x_{\tau}) + \sum_{k=0}^{\tau - 1} G(x_k)\right]\]
+    and we have DPE 
+    \[v(x) = \max\{H(x), G(x) + \sum_y P_{xy} v(y)\} \tag{*}\]
+
+    But! This no longer has a unique solution. Let's use the finite horizon version to help. 
+
+    Define $u_n(x) = v_{N - n}(x)$ (or equivalently $u_{N -n } = v_n(x)$) where $N$ is the terminal time from the finite horizon case. 
+    
+    Now we are indexing by ``time to go'' so we have a \emph{forward form DPE}:
+    \[\begin{cases}
+        u_0(x) = H(x)\\ 
+        u_{n+1}(x) = \max\{H(x), G(x) + \sum_y u_n(y) P_{xy}\}
+    \end{cases}\]
+    which gives us $\{u_0, u_1, \dots, u_N\}$ 
+
+    Intuitively, we expect $u_n(x) \to V(x)$ as $n \to \infty$. Taking the limit, 
+    \[V(x) = \min\{H(x), G(x) + \sum_y V(y) P{xy}\}\]
+
+    So now it remains to show that $V(x)$ is indeed the minimal solution to the DPE. 
+
+    \begin{tbox}{\textbf{Proposition:} $V(x)$ is the minimal solution to the DPE }
+        \emph{Proof Sketch:} 
+        \begin{enumerate}
+            \item $V(x) = \lim_{n \to\infty} u_n(x)$
+            \item Suppose there is another solution $u(x)$. WTS $u(x) \geq V(x)$. 
+
+            But from (*), 
+            \begin{align*}
+                u(x) &\geq H(x) = u_0(x)\\ 
+                u(x) &\geq G(x) + \sum_y P_{xy} u(y)\\ 
+                    &\geq G(x) + \sum_y P_{xy} u_0(y)
+            \end{align*}
+            so 
+            \[u(x) \geq \max\{H(x), G(x) + \sum_y P{xy} u_1(y)\} = u_2(x)\] 
+            and we can inductively verify that $u(x) \geq u_n(x)$ for all $n$.
+    
+            Hence, $u(x) \geq \lim u_n(x) = V(x)$
+        \end{enumerate}
+    \end{tbox}
+
+\subsection*{Optimal Control}
+    In a control problem, $X_{n+1} = f(x_n, u_n, \xi_{n+1})$ where $u_n$ is the control at time $n$ and $\xi_{n+1}$ is the noise at time $n+1$.
+
+    We can model it as a Markov Chain 
+    \begin{center}
+    \begin{tikzpicture}[-> , >= stealth, shorten >=2pt, line width =0.5 pt,
+    node distance=2 cm]
+        \node [circle, draw] (zero) {$ x_0 $};
+        \node [circle, draw, right of=zero] (one) {$ x_1 $};
+        \node [circle, draw, right of=one] (two) {$ x_2 $};
+        \node [right of=two] (dots) {$\dots$};
+        \node [right of=dots] (n) {$ x_n $};
+        \node [right of=n] (n1) {$x_{n+1}$};
+    
+        \path (zero) edge (one);
+        \path (one) edge (two);
+        \path (two) edge (dots);
+        \path (dots) edge (n);
+        \path (n) edge (n1);
+
+        \node [below of=zero, blue] (u0) {$u_0$};
+        \node [below of=one, blue] (u1) {$u_1$};
+        \node [below of=two, blue] (u2) {$u_2$};
+        \node [below of=n, blue] (un) {$u_n$};
+        \node [below of=n1, blue] (un1) {$u_{n+1}$};
+
+        \path (u0) edge[blue] (zero);
+        \path (u1) edge[blue] (one);
+        \path (u2) edge[blue] (two);
+        \path (un) edge[blue] (n);
+        \path (un1) edge[blue] (n1);
+
+        \node [red, above=0.5cm of $(zero)!0.5!(one)$] (z1) {$\xi_1$};
+        \node [red, above=0.5cm of $(one)!0.5!(two)$] (z2) {$\xi_2$};
+        \node [red, above=0.5cm of $(n)!0.5!(n1)$] (zn1) {$\xi_{n+1}$};
+
+        \path (z1) edge[red] ($(zero)!0.5!(one)$);
+        \path (z2) edge[red] ($(one)!0.5!(two)$);
+        \path (zn1) edge[red] ($(n)!0.5!(n1)$);    
+    \end{tikzpicture}
+    \end{center}
+
+    \tbf{Finite Horizon Optimal Control:}
+    \[V(x) = \max_{\{u_n\}} \E\left[H(x_n) + \sum_{k=0}^{N-1} G(x_k, u_k) \;\bigg\vert\; x_0 = x \right]\]
+    for terminal time $N$. 
+
+    We can define value functions
+    \[v_n(x) = \max_{\{u_k\}} \E[H(x_N) + \sum_{k=0}^{n-1} G(x_k, u_k) + v_{n+1}(x_{n+1}) \;\bigg\vert\; x_n = x]\]
+    which yields DPE 
+    \[\begin{cases}
+        v_N(x) = H(x)\\ 
+        v_n(x) = \max_{u \in A(x)} [G(x, u) + v_{n+1}(f(x, u, \xi_{n+1}))]
+    \end{cases}\]
+
+    \begin{tbox}{\textbf{Theorem:} $V(x) = v_0(x)$. And if $u_n^*(x) \in A_n$ is the maximizer to the RHS of the DPE, then $\{u_0^*(x), u_1^*(x), \dots\}$ is an optimal control policy}
+        \emph{Proof:} Omitted (similar to earlier proofs)
+    \end{tbox}
+
+\section*{Oct 23}
+\subsection*{Infinite Horizon Optimal Control:}
+    \[V(x) = \max_{\{u_n\}} \E\left[\sum_{n=0}^\infty \alpha^n G(x_n, u_n) \; \bigg\vert \; x_0 = x \right]\]
+    where $0 < \alpha < 1$ is a discount factor to make the sum convergent and $X_{n+1} = f(x_n, u_n, \xi_{n+1})$
+
+    Notice 
+    \begin{align*}
+        \sum_{k=0}^\infty\alpha^k G(x_k, u_k) &= G(x_0, u_0) + \alpha \sum_{k=1}^\infty \alpha^{k} G(x_k, u_k)\\
+        &= G(x_0, u_0) + \alpha \sum_{k=1}^\infty \alpha^{k-1} G(x_{k}, u_{k})\\
+        &= G(x_0, u_0) + \alpha V(x)
+    \end{align*}
+    where $V(x)$ is the value if we control optimally.
+
+    Then our DPE is 
+    \begin{align*}
+        V(x) &= E[G(x, u) + \alpha V(f(x, u, \xi))]\\ 
+            &= \max_{u \in A(x)} \left\{G(x, u) + \alpha \E[V(f(x, u, \xi))]\right\}
+    \end{align*}
+    but because we have no terminal condition, we have no guarantee of a unique solution -- even when $G$ is continuous and bounded!
+    
+    How do we calculate the value function? By definition,
+    \[\begin{cases}
+        v_0(x) = 0\\ 
+        v_{n+1}(x) = \max_{u \in A(x)} \left\{G(x, u) + \alpha \E[v_n(f(x, u, \xi))]\right\}
+    \end{cases} \tag{*}\]
+    Then clearly, if $v_n \to v^*$ then $v^*$ is a solution to the DPE.
+
+    \begin{exercise}
+        \textbf{Exercise:} Check that 
+        \[v_n(x) = \max_{\{u_k\}} \E\left[\sum_{k=0}^{n-1} \alpha^k G(x_k, u_k) \; \bigg\vert \; x_0 = x\right]\]
+        i.e. (*) is a forward DPE with unique solution
+    \end{exercise}
+
+\subsection*{Contraction Principle}
+
+    In its most general form, we can think of a DPE as a \emph{functional} $v = \L(v)$. Then existence of a solution amounts to asking if $\L$ has a fixed point.
+
+    For $v_0 = v$ (any initial condition), we define $v_n = \L(v_{n-1})$. It suffices to show that $v_n$ is Cauchy. Of course, this requires us to first define a metric on the space of functions: we will take the uniform metric 
+    \[\rho(u, v) = \sup_x \abs{u(x) - v(x)}\]
+
+    \tbf{Definition:} a space $(\F, \rho)$ of functions equipped with a metric $\rho$ is \emph{complete} if every Cauchy sequence in $\F$ has a limit in $\F$. 
+
+    Let's return to the DPE: 
+    \[v(x) = \max_{u \in A(x)} \left\{G(x, u) + \alpha \E[v(f(x, u, \xi))]\right\}\]
+
+    Assume $G$ is bounded. Then $\L$ maps a bounded function to a bounded function. 
+
+    \begin{exercise}
+        \textbf{Exercise:} Show that the space of bounded functions is complete under the uniform metric.
+    \end{exercise}
+
+    \begin{tbox}{\textbf{Claim:} $\rho(\L(v), \L(w)) \leq \alpha \rho(v, w)$ for $0 < \alpha < 1$ }
+        \emph{Proof:} 
+        \begin{align*}
+            \rho(\L(v), \L(w)) &= \sup_x \abs{\L(v)(x) - \L(w)(x)}\\
+            &= \sup_x \bigg\vert\max_{u \in A(x)} \left\{G(x, u) + \alpha \E[v(f(x, u, \xi))]\right\}\\ 
+                &\qquad - \max_{u \in A(x)} \left\{G(x, u) + \alpha \E[w(f(x, u, \xi))]\right\}\bigg\vert\\
+            &= \alpha \sup_x \abs{\E[v(f(x, u, \xi))] - \E[v(f(x, u, \xi))]}
+            &\leq \alpha \sup_x \abs{v(x) - w(x)}\\ 
+            & = \alpha \rho(v, w)
+        \end{align*}
+
+        Hence, $\L$ is a contraction
+    \end{tbox}
+
+    \tbf{Claim:} for a contraction $\L$ and any initial function $v_0$, $v_n = \L(v_{n-1})$ is Cauchy
+    
+    \tbf{Claim:} if a contraction has a fixed point, it is unique.
+
+    All together, $v_n$ is Cauchy and hence has a limit $v^*$ which is a fixed point of $\L$. Therefore, $v^*$ is a solution to the DPE.
+
+\chapter{Dynamic Programming: Applications}
+\section*{Oct 25}
+\subsection*{Optimal Stopping on SRW with Absorbing End Points} 
+
+    Let $\{S_0, S_1, S_2, \dots\}$ be a symmetric random walk with 
+    \[S_n = S_0 + \sum_{k=1}^{n} X_k\] 
+    until the walk is absorbed at $0$ or $b \in \N$, with $\{X_1, X_2, \dots\}$ iid with $\P(X_1 = 1) = \P(X_1 = -1) = 1/2$ and $S_0 = x \in \{0, 1, \dots, b\}$. 
+    
+    Let $f: \{0, 1, \dots, b\} \to [0, \infty)$. The goal is to solve 
+    \[v(x) = \sup_{\tau} \E[f(S_{\tau}) \; | \; S_0 = x]\]
+    where $\tau$ is the stopping time when the walk is absorbed.
+
+    Clearly, $v$ is a solution to the DPE 
+    \[V(x) = \max\{f(x), \frac{1}{2}V(x + 1) + \frac{1}{2}V(x  -1)\}, \quad 0 < x < b\]
+    and we have boundary conditions $V(0) =0$, $V(b) = f(b)$.
+
+    This DPE implies $v$ is concave and dominates $f$. Further, if $V(x) > f(x)$, we must have 
+    \[V(x) = \frac{1}{2}V(x +1) + \frac{1}{2}V(x - 1)\] 
+    so $V$ is linear at $x$. 
+
+    With a little work, we can show that $V$ is in fact the \emph{smallest} concave function that dominates $f$ and that the optimal stopping time is 
+    \[\tau^* = \inf\{n \geq 0: V(S_n) = f(S_n)\}\]
+
+    An interesting special case is when $f(x) = \ind_{\{x = 0\}}$. Then it is never optimal to stop (stopping gives zero value) and instead continue until absorption, i.e. 
+    \[\begin{cases}
+        V(x) = (b - x) / b\\ 
+        \tau^* = \inf\{n \geq 0: V(S_n = f(S_n))\} = \inf\{n \geq 0: S_n = 0 \text{ or } b\} 
+    \end{cases}\]
+
+    Moreover,
+    \[\frac{b - x}{b} = V(x) = \P(S_{\tau^*} = 0 \; | \; S_0 = x) = \P(\text{random walk reaches 0 before b} \; | \; S_0 = x)\]
+    which is the ruin probability for fair games. 
+
+\subsection*{A Discounted Random Walk}
+    Consider another symmetric SRW $\{S_0, S_1, S_2, \dots\}$ with 
+    \[S_n = S_0 + \sum_{k=1}^{n} X_k\] 
+    for $\{X_1, X_2, \dots\}$ iid with $\P(X_1 = 1) = \P(X_1 = -1) = 1/2$.
+
+    Let $\alpha \in (0, 1)$ be a discount factor for the optimization problem 
+    \[V(x) = \sup_{\tau} \E[\sum_{k=0}^{\tau - 1} \alpha^k S_k \; | \; S_0 = x]\]
+
+    This is an infinite horizon discounted optimal stopping problem so the value function should satisfy the DPE 
+    \[V(x) = \max\{0, x + \frac{\alpha}{2} [V(x + 1) + V(x - 1)]\}\]
+
+    Let's try to solve it explicitly, for which we need a guess of the optimal stopping strategy. Notice that if $S_n$ is strictly positive, it is never optimal to stop since the RW will still be non-negative in the next step which will contribute positively to the expected value. Conversely, if $S_n$ is very negative we should cut our losses and stop:
+    \[V(x) = \begin{cases}
+        x + \frac{\alpha}{2} [V(x + 1) + V(x - 1)] & x > b\\ 
+        0 & x \leq b
+    \end{cases}\] 
+    for $b$ a \emph{free-boundary} such that it is optimal to stop when $S_n \leq b$ and optimal to continue when $S_n > b$. 
+
+    Note that for $x \geq b$, $V$ satisfies a difference equation with characteristic equation 
+    \[r = \frac{\alpha}{2}(r^2 + 1)\]
+    with roots $\frac{1}{\alpha}(1 \pm \sqrt{1 - \alpha^2})$ and particular solution $x/(1 - \alpha)$. 
+
+    Therefore if $x \geq b$, 
+    \[V(x) = \frac{x}{1 - \alpha} + A\left(\frac{1 - \sqrt{1 - \alpha^2}}{\alpha}\right)^x + B\left(\frac{1 - \sqrt{1 + \alpha^2}}{\alpha}\right)^x\]
+    for constants $A, B$. 
+
+    Solving the DPE thus reduces to determining the constants $A, B, b$. 
+
+    \begin{enumerate}
+        \item \emph{Determination of $B$}: It is not hard to verify $0 < r_1 < 1 < r_2$. But $V \geq 0$ and can grow at most linearly as $x \to \infty$ since 
+        \[V(x) \leq \E[\sum_{k=0}^\infty \alpha^k \abs{S_k} \; | \; S_0 = x] \leq \sum_{k=0}^\infty \alpha^k(x + k)\]
+        so $B = 0$.
+
+        \item \emph{Determination of $A$:} Denote $r = \frac{1 - \sqrt{1 - \alpha^2}}{\alpha}$. By definition, $V(b) = 0$ so 
+        \[V(b) = \frac{b}{1 - \alpha} + Ar^b = 0 \implies A = - \frac{br^{-b}}{1 - \alpha}\]
+        and 
+        \[V(x) = \begin{cases}
+            \frac{1}{1 - \alpha} (x - br^{x - b}) & x \geq b\\ 
+            0 & x \leq b
+        \end{cases}\] 
+
+        \item \emph{Determination of $b$:} For $x > b$, it is optimal to continue so we expect the value of continuation to be larger than the value of stopping:
+        \[x + \frac{\alpha}{2}[V(x + 1) + V(x - 1)]\]
+        for $x > b$.
+
+        Conversely, for $x \leq b$, it is optimal to stop:
+        \[x + \frac{\alpha}{2}[V(x + 1) + V(x - 1)] \leq 0\]
+
+        Plugging $V$ into these inequalities, 
+        \begin{align*}
+            \frac{1}{1 - \alpha} (x - br^{x- b}) &> 0 && x > b\\ 
+            b + \frac{\alpha}{2} \frac{1}{1 - \alpha} (b+ 1  -br) &\leq 0 && x = b\\ 
+            x &\leq 0 && x < b
+        \end{align*}
+
+        But we expect $b \leq 0$ so the last inequality always holds. The LHS of the first case is increasing when $x \leq b$ so it reduces to $x = b + 1$. Therefore, the system reduces to 
+        \[\begin{cases}
+            \frac{1}{1 - \alpha} (x - br^{x- b}) > 0 & x = b + 1\\ 
+            b + \frac{\alpha}{2} \frac{1}{1 - \alpha} (b+ 1  -br) \leq 0 & x = b
+        \end{cases}\]
+
+        Solving, we get 
+        \begin{align*}
+            D &= -\frac{1}{1 - r} < b\\ 
+            C &= -\frac{\alpha}{2 - \alpha - \alpha r} \geq b
+        \end{align*}
+        and by definition of $r$, $C = D + 1$ so $b$ is the unique negative integer in 
+        \[(D, D+1] = \left(-\frac{1}{1 - r}, -\frac{r}{1 - r}\right]\]
+
+        This procedure also verifies that $V$ is indeed a solution to the DPE! 
+
+    \end{enumerate}
+
+\section*{Oct 28}
+    \tbf{Remark:} It is very common in practice to solve entry and exit problems. But in general, solving
+    \[\max_{\tau \leq 0} \E\left[\sum_{k=\tau}^{\sigma - 1} \alpha^k S_k \; | \; S_0 = x\right]\]
+    and 
+    \[\max_{\tau} \E\left[\alpha^{\tau} V(S_{\tau}) \; | \; S_0 = x\right]\]
+    are equivalent. 
+
+\subsection*{Search Problem}
+    Let's consider a very general problem. 
+    
+    Let $\{X_0, X_1, \dots\} \geq 0$ be iid R.V. with density $f$. 
+
+    We want to find 
+    \[\max_{\tau} \E[\max(x_1, x_2, \dots, x_{\tau}) - c\tau]\]
+    for $c > 0$ constant. 
+
+    Our value function is just $V(x)$ for $x$ the current best offer. 
+
+    And our DPE is
+    \[V(x) = \max\left(x, \E[V(\max(x, X))] - c\right)\]
+    where $x$ is our value of stopping and the other term is the value of continuation. 
+
+    The optimal strategy is to find a threshold $x^*$ such that it is optimal to stop if $x \geq x^*$
+
+    \begin{center}
+        \includegraphics[width=0.8\textwidth]{Images/x_star search.png}
+    \end{center}
+
+    How do we determine $x^*$? 
+
+    Notice, $\forall x < x^*$, $x^* = V(x) = \E[V(\max(x, X))] - c$ so for $X \sim f(y)$,
+    \begin{align*}
+        x^* &= \E[V(\max(x, X))] - c\\ 
+            &= \int_0^{\infty} V(\max(x, u)) f(y)\; dy - c\\ 
+            &= \int_0^{x^*} V(\max(x, y)) f(y)\; dy + \int_{x^*}^{\infty} V(\max(x, y)) f(y)\; dy - c\\ 
+            &= \int_0^{x^*} x^* f(y)\; dy + \int_{x^*}^{\infty} y f(y)\; dy - c\\
+            &= x^*
+    \end{align*}
+
+    Define $\phi(x) = \int_x^{\infty} (y - x) f(y)\; dy$ so $c = \phi(x^*)$ and $\phi \to 0$ from $\phi(0) = \E[X]$
+
+\section{Oct 30}
+\subsection*{Linear Regulator}
+    Let $\{\zeta_1, \zeta_2, \dots\}$ be iid R.V. with mean $0$ and variance $\sigma^2$ (representing noise). The controlled process is given by 
+    \[X_{n+1} = X_n - u_n + \zeta_{n+1}\]
+    where $\{u_0, u_1, \dots\}$ is a sequence of controls in $\R$> 
+
+    Given a discount factor $\alpha \in (0, 1)$ and a constant $\ep > 0$, we want to solve 
+    \[V(x) = \inf_{\{u_n\}} \E\left[\sum_{n=0}^\infty \alpha^n (X_n^2 + \ep u_n^2)\; \bigg\vert \; X_0 = x\right]\]
+    where the inf is taken over all possible controls. 
+
+    Clearly, this should satisfy the DPE
+    \[V(x) = \inf_u \{x^2 + \ep u^2 + \alpha \E[V(x - u + \zeta)]\}\]
+    where $\zeta$ is drawn from the distribution of $\zeta_1$. 
+
+    What form will the value function take? If we do a few iterations with the forward DPE of the corresponding finite horizon problem, we can see that $V$ will be quadratic in $x$. 
+
+    Assume $V(x) = ax^2 + bx + c$ for constants $a, b, c$. Then
+    \begin{align*}
+        V(x) &= ax^2 + bx + c \\ 
+        &= \inf_u \{x^2 + \ep u^2 + \alpha E(a(x - u + \zeta) + b(x - u + \zeta) + c)\}\\ 
+        &= \inf_u \{x^2 + \ep u^2 + \alpha[a(x - u)^2 + a\sigma^2 + b(x - u) + c)\}\\
+    \end{align*}
+    which is minimized at 
+    \[u = u^* = \frac{\alpha (2 ax + b)}{2(\ep + \alpha a)}\]
+    
+    Plugging this back in and comparing the coefficients for $x$, 
+    \[b = \frac{\alpha b}{\ep + \alpha a} \implies b = 0\]
+    and for $x^2$,
+    \[a = 1 + \frac{\ep \alpha a}{\ep + \alpha a}, \quad c = \alpha(a \sigma^2 + c)\]
+
+    Solving by noting that $a > 0$ so $V \geq 0$, 
+    \[a = \frac{(\ep \alpha + \alpha  \ep)^2 + \sqrt{(\ep \alpha + \alpha - \ep)^2 +4\alpha \ep}}{2\alpha}, \quad c = \frac{\alpha\sigma^2}{1 - \alpha}a\]
+
+    Therefore, $V(x) = ax^2 + c$ and the optimal control at time $n$ is 
+    \[u_n^* = \frac{\alpha a}{\ep + \alpha a} X_n\]
+
+
+
+\chapter{Brownian Motion and Stochastic Calculus}
+\section{Nov 1}
+    Consider the classical random walk. Let $\{X_1, X_2, \dots\}$ be iid R.V. with $\P(X_1 = 1) = \P(X_1 = -1) = 1/2$.
+
+    These random variables satisfy $\E[X_i] = 0$ and $\Var[X_i] = 1$. The SRW associated with $\{X_i\}$ (starting at the origin) is 
+    \[S_n = \sum_{i=1}^n X_i\]
+    for $n\geq 0$.
+
+    We want to approximate Brownian motion. Given large $n$, define 
+    \[S^(n)(t) = \sum_{i=1}^{nt} X_i, \quad 0 \leq t \leq 1\] 
+    which is a ``picture'' of the whole RW $\{S_0, S_1, \dots, S_n\}$ scaled down. 
+
+    \tbf{Remark:} When we write $nt$ in the sum, we mean it is defined when $nt$ is an integer and as a linear interpolation between the two closest integers otherwise.
+
+    But this time scaling is not enough to fully put the RW in a pcutre since $S^{(n)}$, the state of the RW, can take very large values. So how should be scale the state space?
+
+    If we scale by a factor of $1/n$, the process is 
+    \[\frac{1}{n} S^{(n)}(t) = \frac{1}{n}\sum_{i=1}^{nt} X_i\]
+    which will be very close to a constant line of $0$ when $n$ is large (LLN). But this removes all the randomness! 
+
+    Heuristically, we should choose $1/\sqrt{n}$ -- the factor consistent with the Central Limit Theorem. Therefore, define
+    \[B^{(n)}(t) = \frac{1}{\sqrt n} \sum_{i=1}^{nt} X_i, \quad 0 \leq t \leq 1\]
+
+    For $n$ large, we can already make some important observations:
+    \begin{itemize}
+        \item The process is continuous in $t$. (The jump sizes of the SRW are $1/\sqrt n \to 0$)
+        \item The RV $B^{(n)}(t)$ is \emph{approximately} normal $N(0, t)$. (CLT)
+        \item The increment $B^{(n)}(t) - B^{(n)}(s) \approx N(0, t - s)$ for $0 \leq s < t \leq 1$ (Proof: Exercise. Hint: CLT)
+        \item We can trivially extend the definition for any $t \geq 0$. 
+        \item All of the above are valid as long as $\E[X_i] = 0$ and $\Var[X_i] = 1$ 
+    \end{itemize}
+
+    Letting $n \to \infty$, we naturally get the definition of a Brownian motion.
+
+    \tbf{Standard Brownian Motion:} A stochastic process $B = \{B(t): t \geq 0\}$ is a Brownian motion if:
+    \begin{enumerate}
+        \item $B_0 = 0$
+        \item The sample path $t \mapsto B_t$ is always continuous
+        \item The increment $B_t - B_s \sim N(0, t - s)$ for all $0 \leq s < t$
+        \item The increments on disjoint time intervals $\{B_{t_1} - B_{t_0}, B_{t_2} - B_{t_1}, \dots, B_{t_n} - B_{t_{n-1}}\}$ are independent for all $n$ and $0 \leq t_0 \leq \dots \leq t_n$.
+    \end{enumerate}
+
+\subsection*{Interlude: Jointly Normal Random Variables}
+    A jointly normal (multivariate normal) distribution of $n$ variables is characterized by 
+    \begin{itemize}
+        \item $\mu \in \R^n$ given by $\mu_k = \E[X_k]$ 
+        \item $\Sigma \in \R^{n \times n}$ given by $\Sigma_{ij} = \Cov(X_i, X_j)$ (and $\Sigma_{ii} = \Var(X_i)$)
+    \end{itemize}
+    which gives us some very nice properties:
+    \begin{enumerate}
+        \item the covariance matrix $\Sigma$ is symmetric 
+        \item Independent random variables are jointly normal \emph{automatically} 
+        \item Any linear combination of a jointly normal distribution is normal (i.e $aX + bY \sim N$ if $X, Y \sim N$)
+    \end{enumerate}
+
+\subsection*{Properties of Standard Brownian Motion}
+    Brownian motion is \emph{the} most fundamental stochastic process. From its definition we have some elementary properties:
+        \begin{itemize}
+            \item $B_t \sim N(0, t)$
+            \item $\{B_{t_1}, B_{t_2}, \dots, B_{t_n}\}$ (given by $B_{t_i} = B_{t_i} - B_{t_{i-1}}$) is jointly normal. 
+            
+            In particular, for $s < t$, 
+            \[X = aB_s + bB_t\] 
+            ($a, b$ constant).
+
+            We know
+            \begin{align*}
+                \E[X] &= a\E[B_s] + b\E[B_t] = 0\\ 
+                \Var[X] &= \Var[aB_s + bB_t]\\ 
+                    &= \Var(aB_s + b(B_s + (B_t - B_s)))\\ 
+                    &= \Var((a + b) B_s + b(B_t - B_s))\\ 
+                    &= \Var((a+ b) B_s) + \Var(b(B_t - B_s)) && (\text{independence})\\ 
+                    &= (a + b)^2 s + b^2(t - s)
+            \end{align*}
+            so 
+            \[X \sim N(0, (a^2 + 2ab)s + b^2t)\]
+            
+            \item For any $s < t$, $\Cov(B_s, B_t) = s$. In general, $\forall s, t$ we have $\Cov(B_s, B_t) = \min(s, t)$. 
+            
+            Say $s < t$. Then 
+            \begin{align*}
+                \Cov(B_s, B_t) &= \Cov(B_s, B_s + (B_t - B_s))\\ 
+                & = \Cov(B_s, B_s) + \Cov(B_s, B_t - B-s) \\ 
+                &= \Var(B_s) + 0
+            \end{align*}
+            since $B_s$ and $B_t - B_s$ are independent.
+        \end{itemize}
+
+\section{Nov 4}
+\subsection{A second construction of Brownian Motion}
+    \begin{tbox}{\textbf{Lemma:} Let $\{B_t: t \geq 0\}$ be a standard Brownian motion. For any $0 \leq s < t$ and  $c = (s + t)/2$,
+    \[X = B_c - \frac{1}{2} (B_s + B_t) \sim N(0, \frac{t-S}{4})\]
+    is independent of $(B_s, B_t)$. Indeed, $X$ is independent of $B_u$ for any $u \notin (s, t)$}
+        \emph{Proof:} The RVs $(B_s, B_c, B_t)$ are jointly normal. Therefore $(X, B_s, B_t)$ are also jointly normal since they are linear combinations of jointly normal RVs. 
+
+        We can compute 
+        \begin{align*}
+            \Cov(X, B_s) &= \Cov(B_c - B_s) - \frac{1}{2}(B_s, B_t) -\frac{1}{2}\Cov(B_t, B_s)\\ 
+                &= s - \frac{s}{2} - \frac{t}{2} = 0\\ 
+            \Cov(X, B_t) &= \Cov(B_c - B_t) - \frac{1}{2}\Cov(B_s, B_t) - \frac{1}{2}\Cov(B_t, B_t)\\
+                &= t - \frac{s}{2} - \frac{t}{2} = 0
+        \end{align*}
+
+        Therefore, $X$ is independent of $B_s$ and $B_t$. Similarly, we can show that $\Cov(X, B_u) = 0$ for all $u \notin (s, t)$ and thus conclude that $X$ is independent of $B_u$ as well. 
+
+        Moreover, $X$ is normal with mean $0$ and variance 
+        \begin{align*}
+            \Var\, X &= \Var\left[\frac{1}{2}(B_c - B_s) + \frac{1}{2}(B_c - B_t)\right]\\ 
+                &= \frac{1}{4} (c - s) + \frac{1}{4}(t - c)\\ 
+                &= \frac{t - s}{4}
+        \end{align*}
+    \end{tbox}
+
+    It follows immediately from the lemma that for $0 \leq s < t$, one can represent $B_c$ as 
+    \[B_c = \frac{B_s + B_t}{2} + \frac{\sqrt{t - s}}{2}Z\]
+    where $Z \sim N(0, 1)$ is independent of $(B_s, B_t)$ and in general $B_u$ for all $u \notin (s, t)$. 
+
+    Thus, Brownian motion is a ``linear'' combination of standard normal RVs. 
+
+    Precisely, let $\{Z_1, Z_2, \dots\}$ be iid $N(0, 1)$ and consider $t \in [0, 1]$. 
+    \begin{enumerate}
+        \item \emph{First level approximation:} Define $B_0$ and $B_1 = Z_1$. Use linear interpolation for any $0  < t < 1$
+        \item \emph{Second level approximation:} Let $c_1 = (0 + 1)/2$ and $\Delta_1 = 1 - 0$. Define 
+        \[B_c = \frac{B_0 + B_1}{2} + \frac{\sqrt{\Delta_1}}{2} Z_2\]
+        Use linear interpolation for any $0 < t < c$ and $c < t < 1$. 
+        \item \emph{Third level approximation:} Let $c_2 = (0 + c_1)/2$ and $\Delta_2 = c_1 - 0$. Define
+        \[B_{c_2}= \frac{B_0 + B_{c_1}}{2} + \frac{\sqrt{\Delta_2}}{2} Z_3\]
+        use linear interpolation for any $0 < t < c_2$, $c_2 < t < c_1$. Deal with the time interval $(c_1, 1)$ analogously. 
+    \end{enumerate}
+
+    \begin{center}
+        \includegraphics{Images/Brownian iteration.png}
+    \end{center}
+
+    If one is willing to sort out all the technical details, these approximations can be expressed as 
+    \[B_t^{(m)} = \sum_{k=1}^{2^m} S_k^{(m)}(t) Z_k\] 
+    for the $m^{\text{th}}$ level approximation, where $\{Z_1, Z_2, \dots\}$ are iid $N(0, 1)$ and $\{S_1^{(m)}, S_2^{(m)}, \dots\}$ are a family of functions on $[0, 1]$ with 
+    \[S_k^{(m)}(t) = \int_0^t H_k^{(m)}(s)\; ds\] 
+    where $\{H_k^{(m)}(t)\}$ form a complete orthonormal basis of $L^2[0, 1]$.
+
+    We call $\{H_k^{(m)}\}$ the \emph{Haar wavelets}. They are rectangle shaped functions:
+
+    \begin{center}
+        \includegraphics{Images/Haar wavelets.png}
+    \end{center}
+
+\subsection{Properties of Brownian Motion}
+    Let $B = \{B_t: t \geq 0\}$ be a standard Brownian motion. It is straightforward from the definition that 
+    \begin{itemize}
+        \item (Symmetry) $-B = \{-B_t: t \geq 0\}$ is also a standard Brownian motion
+        \item Brownian motion starts afresh at every time. That is, for any $s > 0$, $\{W_t = B_{t + s} - B_s: t \geq 0\}$ is a standard Brownian motion.
+    \end{itemize} 
+
+    \tbf{Example (Reflection Principle):} Let $B$ be a standard Brownian motion and $T > 0$ an arbitrarily fixed time. Define 
+    \[M_T = \max\{B_t: 0 \leq t \leq T\}\]
+
+    We would like to find the distribution of $M_T$. It is obvious that $M_T \geq 0$. Therefore, it suffices to calculate $\P(M_T > x)$ for any constant $x> 0$. Let 
+    \[\sigma = \min\{t  \geq 0: B_t = x\}\]
+
+    That is, $\sigma$ is the first time the Brownian motion reaches the level $x$. By definition, we must have $\{\sigma < T\} = \{M_T > x\}$. Therefore, 
+    \[\P(M_T > x) = \P(\sigma < T)\]
+
+    On the other hand, if $\{B_T > x\}$, then we must have $\{\sigma < T\}$. Therefore, 
+    \[\P(B_T > x) = \P(B_T > x \land \sigma < T) = \P(B_T > x \; | \; \sigma  < T) \P(\sigma < T)\]
+
+    The conditional probability in the preceding display must be $0.5$ by the symmetry of the standard Brownian motion and the reflection principle. Therefore,
+    \[\P(B_T > x) = \frac{1}{2}\P(\sigma < T) = \frac{1}{2}\P(M_T > x)\]
+    but $B_T \sim N(0, T)$. Thus, letting $\Phi$ be the CDF of $N(0, 1)$, 
+    \[\P(M_T > x) = 2\P(B_T > x) = 2\P\left(N(0, 1) > \frac{x}{\sqrt T}\right) = 2\Phi\left(-\frac{x}{\sqrt T}\right)\]
+
+    Taking the derivative WRT $x$, we get the density of $M_T$:
+    \[\frac{2}{\sqrt T} \Phi'(-\frac{x}{\sqrt T}) \ind_{\{x\geq 0\}} = \frac{2}{\sqrt{2\pi T}} e^{-x^2/2T} \ind_{\{x \geq 0\}}\]
+
+    \begin{center}
+        \includegraphics{Images/Reflection principle.png}
+    \end{center}
+
+\subsection{Martingales and Brownian Motion} 
+    
+    Recall in the definition of martingales that we have a reference process $\{Z_n\}$ and an adapted process $\{X_n\}$ that satisfies 
+    \[\E[X_{n+1} \; | \; Z_0, Z_1, \dots, Z_n] = X_n\]
+
+    With a little technical work, we can extend this notion to continuous time. In general, we can choose the Brownian motion $\{B_t: t \geq 0\}$ itself as the reference process. An adapted process $\{X_t: T \geq 0\}$ is a process such that for every $t \geq 0$, $X_t$ is a function of $\F_t = \{B_s: 0 \leq s < t\}$, the history of the Brownian motion up to time $t$.
+
+    For example, $X_t = B_t^2 - t$ or $X_t = M$ are both adapted processes. A process $X = \{X_t\}$ is said to be a martingale WRT $B = \{B_t\}$ if $X$ is adapted to the reference process and $\E[X_{t+s} \; | \; \F_t] = X_t$ for all $s, t \geq 0$. 
+
+    Many times we will simply say that $X$ is martingale when the underlying reference process $B = \{B_t: t \geq 0\}$ is obvious. Of course, one can define submartingales or supermartingales in the same way.
+
+    Given a (reference process) standard Brownian motion $B= \{B_t\}$, there are many martingales. For example, it is easy to see that both $X_t = B_t$ and $X_t = B_t^2 - t$ are martingales.
+
+    A slightly more complicated example is the \emph{exponential martingale} 
+    \[X_t = e^{\theta B_t - \frac{1}{2} \theta^2 t}\]
+    for any constant $\theta$. 
+
+    It turns out that most stochastic integrals are indeed martingales (or close to being martingales if not). Theorems such as optional sampling theorem for discrete time carry over to continuous time. Let us work out a couple of simple examples.
+
+    Let $\sigma$ be the first time that the standard Brownian motion reaches $-a$ or $b$ for $a, b > 0$. 
+
+
+\end{document}
+ 

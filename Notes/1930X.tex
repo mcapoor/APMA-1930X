@@ -2697,8 +2697,374 @@
 
     It turns out that most stochastic integrals are indeed martingales (or close to being martingales if not). Theorems such as optional sampling theorem for discrete time carry over to continuous time. Let us work out a couple of simple examples.
 
-    Let $\sigma$ be the first time that the standard Brownian motion reaches $-a$ or $b$ for $a, b > 0$. 
+    Define
+    \[\sigma =  \min \{t \geq 0: B_t = -a \text{ or } B_t = b\}\]
 
+    We would like to compute $\E[\sigma]$ and $\P(B_{\sigma} = -a)$. Consider the standard Brownian motion $B$ itself. Trivially, it is a martingale:
+    \[\E[B_{t + s} \; | \; \F_t] = \E[B_t \; | \; \F_s] + \E[B_{t+s}  - B_t \; | \; \F_t] = B_t + \E[B_{t+s} - B_t] = 0\]
+    (second equality follows from the independence of increments).
 
-\end{document}
+    Applying the optional sampling theorem,
+    \[0 = \E[B_0] = \E[B_{\sigma}] = -a \P(B_{\sigma} = -a) + b \P(B_{\sigma} = b)\]
+    But $B_{\sigma} \in \{-a, b\}$ so $\P(B_{\sigma} = -a) + \P(B_{\sigma} = b) = 1$. Therefore, 
+    \[\P(B_{\sigma} = -a) = \frac{b}{a + b}\]
+
+    Finally, consider the martingale $X_t = B_t^2 - t$. By the optional sampling theorem,
+    \[0 = \E[X_0] = \E[X_{\sigma}] = \E[B_{\sigma}^2] - \E[\sigma]\]
+    so 
+    \[\E[\sigma] = \E[B_{\sigma}^2] = (-a)^2 \P(B_{\sigma} = -a) + b^2 \P(B_{\sigma} = b) = ab\]
+
+    \tbf{Remark:} Brownian motion is a martingale but also a Markov process in the sense that given $\F_t$, the distribution of $\{B_s: s > t\}$ only depends on $B_t$. 
+
+\section{Nov 8}
+\section{Stochastic Integral}
+    Throughout this section, we will implicitly assume that teh reference process is some standard Brownian motion $B = \{B_t: t \geq 0\}$. A classsical Riemann integral is of the form 
+    \[\int_a^bf(x) \; dx\]
+    representing the sum of infinitesimal increments. 
+    
+    A stochastic integral is of the form 
+    \[\int_0^{T} X_t \; dB_t\]
+    where $X = \{X_t\}$ is some adapted process. The difference is that for the latter, the increments are random variables. 
+
+    Further, due to the properties of Brownian motion. \emph{the fundamental theorem of calculus does not hold for stochastic integrals}.
+
+    \tbf{Example:} Consider 
+    \[\int_0^a x\; dx, \qquad \int_0^T B_t \; dB_t\]
+
+    \begin{itemize}
+        \item \emph{Computation of the Riemann integral:} Fix a large $n$. Partition the interval $[0, a]$ into $n$ subintervals of length $a/n$. Then
+        \[\int_0^a x\; dx = \lim_{n \to \infty} \sum_{i=0}^{n- 1} x_i \Delta x_i = \lim_{n \to \infty} \sum_{i=0}^{n- 1} x_i(x_{i+1} - x_i)\]
+        where $x_i = i(a/n)$ so 
+        \begin{align*}
+            \lim_{n \to \infty} \sum_{i=0}^{n- 1} x_i (x_{i+1}- x_i) &= \lim_{n \to \infty} \sum_{i=0}^{n- 1} \left(\frac{x_{i+1} + x_i}{2} - \frac{x_{i+1} - x_i}{2}\right) (x_{i+1} - x_i)\\ 
+            &= \lim_{n \to \infty} \left[\frac{1}{2}  \sum_{i=0}^{n- 1} (x_{i+1}^2 - x_i^2) - \frac{1}{2}\sum_{i=0}^{n- 1} (x_{i+1} - x_i)^2\right]\\ 
+            &= \lim_{n \to \infty} \left[ \frac{a^2}{2} - \frac{1}{2}\sum_{i=0}^{n- 1} (\Delta x_i)^2\right]\\ 
+            &= \lim_{n \to \infty} \left[ \frac{a^2}{2} - \frac{1}{2}\sum_{i=0}^{n- 1} \frac{a^2}{n^2}\right]\\ 
+            &= \lim_{n \to \infty} \left[ \frac{a^2}{2} -\frac{a^2}{2n}\right]\\ 
+            &= \frac{a^2}{2}
+        \end{align*}
+
+        \item \emph{Computation of the stochastic integral:} Divide the interval $[0, T]$ into $n$ subintervals of length $T/n$: $0 = t_0 <t_1 < \dots < t_n = T$ with $t_i = i(T/n)$ and $\Delta t_i = t_{i+1} - t_i = \frac{T}{n}$. 
+        
+        We define the stochastic integral as 
+        \begin{align*}
+            \lim_{n \to \infty} \sum_{i=0}^{n- 1} B_{t_i} (B_{t_{i+1}} - B_{t_i}) &= \lim_{n \to \infty} \sum_{i=0}^{n- 1} \left(\frac{B_{t_{i+1}} + B_{t_i}}{2} - \frac{B_{t_{i+1}} - B_{t_i}}{2}\right) (B_{t_{i+1}} - B_{t_i})\\
+            &= \lim_{n \to \infty} \left[\frac{1}{2} \sum_{i=0}^{n- 1} (B_{t_{i+1}}^2 - B_{t_i}^2) - \frac{1}{2} \sum_{i=0}^{n- 1} (B_{t_{i+1}} - B_{t_i})^2\right]\\
+            &= \frac{1}{2} B_t^2 \bigg\vert_0^T - \frac{1}{2} \sum_{i=0}^{n- 1}(B_{t_{i+1}} - B_{t_i})^2
+        \end{align*}
+
+        In the Riemann integral, this second term tends to 0. However, by the definition of Brownian motion, 
+        \[B_{t_{i+1}} - B_{t_i} \sim N(0, t_{i+1} - t_i) = N(0, \frac{T}{n})\]
+
+        It follows that $\sqrt{n}(B_{t_{i+1}}- B_{t_i})$ are iid $N(0, T)$ R.V. for $i =0, 1, 2, \dots, n -1$. Therefore, $n(B_{t_{i+1}} - B_{t_i})^2$ are iid random variabnles with expected value 
+        \[E[n(B_{t_{i+1}} - B_{t_i})^2] = 0 + T = T\]
+
+        So 
+        \[\int_0^T B_t \; d B_t = \lim_{n \to \infty} \sum_{i=1}^{n-1} B_{t_i}(B_{t_{i+1}} - B_{t_i}) = \frac{1}{2}B_t^2 \bigg\vert_0^T - \frac{1}{2} T = \frac{1}{2}(B_T^2 - T)\]
+
+        In short, the Fundamental Theorem of Calculus does not hold for stochastic integrals because Brownian motion simple paths have too much variation
+    
+    \end{itemize}
+
+    
+    \tbf{Definition:} Let $X = \{X_t\}$ be an adapted process and $T>0$ constant. We define the stochastic integral
+    \[\int_0^T X_t \; dB_t = \lim_{n \to \infty} \sum_{i=0}^{n-1} X_{t_i} (B_{t_{i+1}} - B_{t_i})\]
+    where $0 = t_0 < t_1 < t_2 < \dots < t_n = T$ is an arbitrary partition of $[0, T]$. 
+
+    Obviously, we would like an analogous fundamental theorem for the stochastic integral. Consider a continuously differentiable function $f$ with anti-derivative $F$. We should consider the stochastic integral with $X_t = f(B_t)$:
+    \[I_T = \int_0^T f(B_t)\; dB_t\]
+
+    Fix an arbitrarily large $n$ and a fine partition $0 < t_0 < t_1 < \dots < t_n = T$. Then by definition, 
+    \[I_T = \lim_{n \to \infty} \sum_{i=0}^{n-1} f(B_{t_i}) (B_{t_{i+1}} - B_{t_i}) = \lim_{n \to \infty} \sum_{i=1}^{n-1} F'(B_{t_i})(B_{t_{i+1}} - B_{t_i}) \]
+
+    From the Taylor expansion, 
+    \[F(x + \Delta x) - F(x) = F'(x) \Delta x + \frac{1}{2} F''(x) \Delta x^2 + O(\Delta x^3)\]
+
+    It follows that 
+    \[F'(B_{t_i})(B_{t_{i+1}} - B_{t_i}) = F(B_{t_{i+1}}) - F(B_{t_i}) - \frac{1}{2}F''(B_{t_i})(B_{t_{i+1}} - B_{t_i})^2 + O(\Delta x_i^3)\]
+    and 
+    \[\sum_{i=1}^{n-1} F'(B_{t_i})(B_{t_{i+1}} - B_{t_i}) = F(B_T) - F(B_0) - \frac{1}{2}\sum_{i=1}^{n-1} F''(B_{t_i})(B_{t_{i+1}} - B_{t_i})^2 + \sum_{i=0}^{n -1} O(\Delta x_i^3)\]
+
+    While it is not true in general that $O(\Delta x_i^3) = 0$, we do have 
+    \[\lim_{n \to \infty} \sum_{t=0}^{n-1} O(\Delta x_i^3) = 0\]
+
+    This makes intuitive sense because $(B_{t_{i+1}} - B_{t_i})^3 \sim (\sqrt{\Delta t_i})^3 Z_i^3$ where $Z_i \sim N(0, 1)$. 
+
+    They key development of stochastic calculus is the analysis of the summation in the middle of the RHS. In the example above, $F''(x)$ is just a constant and we can use LLN. In general, we need something stronger. 
+
+    Recall $\Delta t_i = t_{i+1} - t_i$. We have 
+    \[\sum_{i=1}^{n-1} (B_{t_{i+1}} - B_{t_i})^2 = \sum_{i=1}^{n-1} F''(B_{t_i}) \Delta t_i + \sum_{i=1}^{n-1} F''(B_{t_i}) \left[(B_{t_{i+1}} - B_{t_i})^2 - \Delta t_i\right]\]
+
+    We claim that 
+    \begin{align*}
+        \sum_{i=1}^{n-1} F''(B_{t_i}) \Delta t_i &\overset{n \to \infty}{\longrightarrow} \int_0^T F''(B_t) \; dt\\ 
+        Q_n = \sum_{i=1}^{n-1} F''(B_{t_i}) \left[(B_{t_{i+1}} - B_{t_i})^2 - \Delta t_i\right] &\overset{n \to \infty}{\longrightarrow} 0
+    \end{align*}
+
+    The first equation is obvious. The second is a bit more subtle. Recall that $B_{t_{i+1}} - B_{t_i} = \sqrt{\Delta t_i} Z_i$ where $Z_i \sim N(0, 1)$. Further, by the independenet increment property of Brownian motion, $Z_i$ is independent of 
+    \[\{Z_0, Z_1, \dots, Z_{i-1}, F''(B_{t_0}), F''(B_{t_1}), \dots, F''(B_{t_{i-1}})\}\]
+
+    Then all the cross terms have $0$ expected value so 
+    \[\E[Q_n^2] = \sum_{i=1}^{n-1} \E[F''(B_{t_i}) (Z_i^2 - 1)\Delta t_i]^2 = C \sum_{i=1}^{n-1} \E[F''(B_{t_i})]^2 (\Delta t_i)^2 \to 0\]
+    where $C = \E(Z_i^2 - 1)^2$. 
+
+    All together, we get the \tbf{Itô Formula}:
+    \begin{align*}
+        \int_0^T F'(B_t) \; dB_t &= F(B_t)\bigg\vert_0^T - \frac{1}{2}\int_0^T F''(B_t) \; dt\\
+        &= F(B_T) - F(B_0) - \frac{1}{2}\int_0^T F''(B_t) \; dt
+    \end{align*}
+    or equivalently, 
+    \[F(B_T) = F(B_0) + \int_0^T F'(B_t) \; dB_t + \frac{1}{2}\int_0^T F''(B_t)\; dt\]
+
+    Luckily, it is often not necessary to evaluate the stochastic integral directly.
+
+    \begin{tbox}{\textbf{Theorem:} Let $X = \{X_t\}$ be an adapted process. THen the stochastic integral $\{I_t: t \geq 0\}$ defined by 
+        \[I_t = \int_0^t X_s \; dB_s\] 
+        is a martingale under mild conditions. In particular, its expected value is $0$.}
+        \emph{Proof:} Exceedingly technical, hence omitted. 
+
+        \emph{Heuristic Argument:} Fix any $T > 0$. Consider a partition $t_n$ of $[0, T]$. 
+
+        We have 
+        \begin{align*}
+            I_T = \int_0^T X_t \; dB_t &\approx \sum_{i=0}^{n-1} X_{t_i} (B_{t_{i+1}} - B_{t_i}) := M_n\\ 
+            I_{t_k} = \int_0^{t_k} X_t \; dB_t &\approx \sum_{i=0}^{k-1} X_{t_i} (B_{t_{i+1}} - B_{t_i}) := M_k
+        \end{align*}
+
+        The sequence $\{M_k: k = 0, 1, 2, \dots, n\}$ is adapted to $\{\F_{t_k}: k = 0, 1, 2, \dots, n\}$. Further, since Brownian motion has independent increments, 
+        \[\E[X_{t_k}(B_{t_{k+1}} - B_{t_k}) \; | \; \F_{t_k}] = X_{t_k} \E[B_{t_{k+1}} - B_{t_k} \; | \; \F_{t_k}] = X_{t_k} \E[B_{t_{k+1}} - B_{t_k}] = 0\]
+        so 
+        \[\E[M_{k+1} \; | \; \F_{t_k}] = M_k\]
+
+        That is, $\{M_k\}$ is a martingale. With a little more work, we can show that the limit $I_T$ is also a martingale.
+    \end{tbox}
+
+    \tbf{Remark:} In this class, all stochastic integrals are martingales; we will not worry about those ``mild conditions''. 
+
+\section{Nov 11}
+\subsection{Recall}
+\begin{enumerate}
+    \item $\int_0^T X_t \;dB_t = M_T$ is a martingale
+    \item Basic Itô formula:
+    \[dF(B_t) = F'(B_t) \; dB_t + \frac{1}{2} F''(B_t)\; dt\]
+    (Remark: this is the differential form which is identical to the integral form)
+\end{enumerate}
+
+    But! If $F$ is not twice continuously differentiable, this does not work. 
+
+    Let's make some notational choices for simplification under multiplication:
+    \begin{center}
+        \begin{tabular}{|c|cc|}
+            \hline\\ 
+            $\cdot$ & $dt$ & $dB_t$\\
+            \hline\\
+            $dt$ & $0$ & $0$\\
+            $dB_t$ & $0$ & $dt$\\
+            \hline
+        \end{tabular}
+    \end{center}
+
+    And this roughly makes sense:
+    \[(dB_t)^2 = (\Delta B_t)^2 \implies \E[(\Delta t)^2] = \Delta t, \quad \Delta B_t \sim N(0, \Delta t)\]
+
+    Using this notation, we can write the Itô formula as
+    \[dF(B_t) = F'(B_t) \;dB_t + \frac{1}{2}F''(B_t)\; (dB_t)^2\]
+    which suggests that Itô is just Taylor expansion to second order. 
+
+\subsection{General Itô Formulas}
+    \begin{enumerate}
+        \item For a general process, 
+        \[dF(X_t) = F'(X_t) \; dX_t + \frac{1}{2} F''(X_t) \; (dX_t)^2\]
+
+        The only question now is ``what is $(dX_t)^2$'' but this is trivial with the multiplication table. For example, if $dX_t = \theta_t \; dt + \sigma_t \; dB_t$, then 
+        \[(dX_t)^2 = (\theta_t\; dt + \sigma_t \; dB_t)^2 = (\sigma_t dB_t)^2 = \sigma_t^2\; dt\] 
+
+        \item Now consider a function of two processes $F(x_t, y_t)$. Then
+        \[dF(x_t, y_t) = \frac{\partial F}{\partial x} dx_t +  \frac{\partial F}{\partial y} y_t + \frac{1}{2} \frac{\partial^2 F}{\partial x^2}(dx_t)^2 + \frac{1}{2} \frac{\partial^2 F}{\partial x \partial y}(dx_t) (dy_t) + \frac{1}{2} \frac{\partial^2 F}{\partial y^2}(dy_t)^2\]
+
+        \item Product rule:
+        \[d(X_t, Y_t) = Y_t \;dX_t X_t\; dY_t + dX_t \cdot dY_t\]
+
+        \item \[dF(t, X_t) = \frac{\partial F}{\partial t} \; d_t + \frac{\partial F}{\partial x} \; dX_t + \frac{1}{2} \frac{\partial^2 F}{\partial x^2}(dX_t)^2\]
+    \end{enumerate}
+
+\subsection{Stochastic Calculus}
+    \tbf{Example:} Argue that $B_t^2 - t$ is a martingale. 
+
+    One way is via direct verification from the definition but this gets quite messy. Instead, we can use Itô's formula:
+    \begin{align*}
+        d(B_t^2 - t) &= d(B_t^2) - dt\\ 
+        &= dF(B_t) - dt && (\text{letting } F(x) = x^2)\\ 
+        &= F'(B_t)\; dB_t + \frac{1}{2} F''(B_t) \; (dB_t)^2 - dt\\
+        &= 2B_t \; dB_t + dt - dt\\
+        &= 2B_t \; dB_t
+    \end{align*}
+
+    Alternatively, we could use the product rule:
+    \begin{align*}
+        d(B_t^2 - t) &= d(B_t^2) - dt\\ 
+        &= d(B_t \cdot B_t) - dt\\
+        &= B_t \; dB_t + B_t \; dB_t + (dB_t)^2 - dt\\
+        &= 2B_t \; dB_t + dt - dt\\ 
+        &= 2B_t \; dB_t
+    \end{align*}
+
+    \tbf{Example:} Given $X_t =\exp(\theta B_t - \frac{1}{2}\theta^2 t)$, calculate $dX_t$ for $\theta$ constant. 
+
+    Define $F(t, x) = \exp(\theta x - \frac{1}{2}\theta^2 t)$. Then $dX_t = dF(d, B_t)$. 
+
+    \begin{exercise}
+        \textbf{Exercise:} Finish the above example using the multivariable Itô formula
+    \end{exercise}
+
+    Alternatively, we could define $Y_t = \theta B_t - \frac{1}{2}\theta^2 t$ so $X_t = \exp(Y_t)$. By Itô, 
+    \[dX_t = d(e^{Y_t}) = dF(Y_t) = e^{Y_t}\;dY_t + \frac{1}{2}e^{Y_t} (dY_t)^2\]
+
+    But $dY_t = \theta dB_t - \frac{1}{2}\theta^2 dt$ so $(dY_t)^2 = \theta^2 (dB_t)^2 = \theta^2\; dt$ so
+    \[dX_t = e^{Y_t}(\theta dB_t - \frac{1}{2} \theta^2 \; dt) + \frac{1}{2}e^{Y_t} + \theta^2 \;dt = \theta X_t\; dB_t\]
+
+    \tbf{Example:} Let 
+    \[X_t = \exp\left(\int_0^t \theta_s \;dB_s - \frac{1}{2} \int_0^t \theta_s^2\; dt\right) \] 
+    where $\theta = \{\theta_t\}$ is a random process. Calculate $dX_t$.
+
+    Here, we cannot write the RHS as function of $t$ and $X_t$ but nonetheless the approach is similar. 
+
+    Introduce 
+    \[Y_t = \int_0^T \theta_s\; dB_s -\frac{1}{2} \int_0^t \theta_s^2\; ds\]
+    so $X_t = \exp(Y_t)$ and
+    \[dY_t = \theta_t \; dB_t - \frac{1}{2}\theta_t^2\; dt \implies (dY_t)^2 = \theta_t^2(dB_t)^2 = \theta_t^2 \; dt\]
+
+    Then, just as before, 
+    \[dX_t = \theta_t X_t \; dB_t\]
+
+    And again, $X_t$ is a martingale.
+
+\subsection{Stochastic Differential Equations}
+    In general, stochastic equations take the form 
+    \[dX_t = b(t, X_t) \; dt + \sigma(t, X_t)\; dB_t\]
+    where $b$ is a drift function and $\sigma$ is a dispersion function. 
+
+    \tbf{Example (Geometric Brownian Motion):} Consider
+    \[dX_t = \theta X_t \; dt + \sigma X_t\; dB_t\] 
+    where $\theta$ and $\sigma$ are constants. What is the behavior of $X_t$?
+
+    In fact, this is one of the few cases we can solve directly. 
+
+    \emph{Ansatz:} Define $Y_t = e^{-\theta t} X_t$. Then by product rule, 
+    \begin{align*}
+        dY_t = d(e^{-\theta t} X_t) &= X_t \; d(e^{-\theta} t) + e^{-\theta t} dX_t + d(e^{-\theta t})\cdot dX_t\\ 
+        &=  X_t \; d(e^{-\theta} t) + e^{-\theta t} dX_t + (-\theta e^{-\theta t} dt) \cdot dX_t\\
+        &=  X_t \; d(e^{-\theta} t) + e^{-\theta t} dX_t \\
+        &=  X_t \; (-\theta e^{-\theta t} dt) + e^{-\theta t} (\theta X_t\; dt + \sigma X_t \; dB_t)\\ 
+        &= \sigma e^{-\theta t} X_t\; dB_t\\ 
+        &= \sigma Y_t \; dB_t
+    \end{align*}
+
+    But we have already seen this differential multiple times:
+    \[dY_t = \sigma Y_t \; dB_t \implies Y_t = C\exp(\sigma B_t - \frac{1}{2}\sigma^2 t) \implies X_t = C\exp\left((\theta - \frac{1}{2} \sigma^2)t + \sigma B_t\right)\]
+
+\section{Nov 13}
+\subsection{Ornstein - Uhlenbeck Mean Reversion}
+    Consider the stochastic differential equation 
+    \[dX_t = \alpha(\mu - X_t) \; dt + \sigma \; dB_t\]
+    where $\alpha > 0, \mu, \sigma$ are constants. 
+    
+    Graphing the behavior over time, we find that it oscillates around the mean $\mu$ because the drift term is negative when $X_t > \mu$ and positive when $X_t < \mu$. Thus used in the \emph{Vasieck model} for interest rates.
+
+    Let $Y_t = e^{\alpha t} X_t$. Then, $Y_0 = X_0$ and 
+    \begin{align*}
+        d(Y_t) &= d(e^{\alpha t} X_t)\\ 
+            &= X_t \; d(e^{\alpha t}) + e^{\alpha t} \; dX_t + d(e^{at}) \cdot dX_t\\ 
+            &= \alpha e^{\alpha t} X_t \; dt + e^{\alpha t} dX_t\\ 
+            &= X_t \cdot \alpha e^{\alpha t} \; dt + e^{\alpha t} \left(\alpha(\mu - X_t) \; dt + \sigma \; dB_t\right)\\
+            &= \mu \alpha e^{\alpha t}\; dt + \sigma e^{\alpha t} \; dB_t
+    \end{align*}
+    so 
+    \begin{align*}
+        Y_T - Y_0 &= \int_0^T \alpha \mu e^{\alpha t}\; dt + \int_0^T \sigma e^{\alpha t}\; dB_t\\ 
+            &= \mu e^{\alpha t} \bigg\vert_0^T + \sigma \int_0^T e^{\alpha t}\; dB_t\\
+    \end{align*}
+    and now we are done with easy substitutions and need to actually deal with the stochastic integral. 
+
+    \begin{tbox}{\textbf{Lemma:} Let $f(t)$ be a deterministic function. Then 
+        \[\int_0^T f(t)\; dB_t \sim N\left(0, \int_0^T f^2(t)\; dt\right)\] }
+        \emph{Proof:} By definition, 
+        \[\int_0^T f(t) \; dB_t = \lim \sum_{k=0}^{n-1} f(t_k) (B_{t_{k+1}} - B_{t_k})\]
+        but the RHS is just a linear combination of independent of normal random variables. 
+
+        Taking the limit, we still have a normal distribution. Hence, the integral must also follow a normal distribution. 
+
+        Further, $B_{t_{k+1} - B_{t_k}}$ have mean $0$ for all $t_k$ so the integral must also have mean $0$. 
+
+        Finally, 
+        \begin{align*}
+            \Var\left[\sum_{k=0}^{n-1} f(t_k) (B_{t_{k+1}} - B_{t_k})\right] &= \sum_{k=0}^{n-1} \Var\left[f(t_k) (B_{t_{k+1}} - B_{t_k})\right]\\
+            &= \sum_{k=0}^{n-1} f(t_k)^2 (t_{k+1} - t_k)\\ 
+            &\overset{n \to \infty}{=} \int_0^T f^2(t)\; dt
+        \end{align*}
+    \end{tbox}
+
+    Hence, in our example, 
+    \[\sigma \int_0^T e^{\alpha t}\; dB_t \sim N\left(0, \frac{1}{2\alpha} (e^{2\alpha T} - 1)\right)\]
+    so 
+    \begin{align*}
+        Y_T &= Y_0 + \mu(e^{\alpha T} - 1) + \sigma N(0, \frac{1}{2\alpha} (e^{2\alpha T} - 1))\\ 
+            &= X_0 + \mu(e^{\alpha T} - 1) + \sigma N(0, \frac{1}{2\alpha} (e^{2\alpha T} - 1))\\ 
+        X_T &= e^{-\alpha T} X_0 + \mu(1 - e^{-\alpha T}) + \sigma e^{-\alpha T} N(0, \frac{1}{2\alpha} (e^{2\alpha T} - 1))\\ 
+            &= N\left(e^{-\alpha T}X_0 + \mu(1- e^{-\alpha T}), \frac{\sigma^2}{2\alpha}(1 - e^{-2\alpha T})\right)
+    \end{align*}
+
+    Now as $T \to \infty$, $X_T \to N(\mu, \frac{\sigma^2}{2\alpha})$ which is exactly what we expected! It also tells us that the initial condition becomes less important as time goes on.
+
+\subsection{Connection to Partial Differential Equations}
+    \tbf{Example:}
+
+    Let $\{B_t\}$ be the standard Brownian Motion. Consider 
+    \[X_t = x + B_t\]
+    for $x$ arbitrary. 
+
+    We want to study $\E[f(X_T) \; | \; X_0 = x]$ for some function $f$.
+
+    We know immediately from our past work that this is just 
+    \[\E[f(X_T) \; | \; X_0 = x] = \E[f(x + B_t)] = \int_{-\infty}^{\infty} f(x+ y) \cdot \frac{1}{\sqrt{2\pi T}} e^{-\frac{y^2}{2T}}\; dy\]
+
+    But in general, we are not just interested in Brownian motion. In these cases, we do not have this insight into the distribution of $X_T$ and it can be useful to study the problem as a PDE. 
+
+    \tbf{Example:} With a slight abuse of notation, consider 
+    \[v(t, x) = \E[f(X_T) \; | \; X_t = x]\]
+    for $x \in \R$ and $0 \leq t \leq T$. 
+
+    Now, to solve the earlier problem, it suffices to find $v(0, x)$.
+    
+    By construction, we have the terminal condition immediately: $v(T, x) = \E[f(X_T) \; | \; X_T = x] = f(x)$.
+
+    However, we do not have any information about times $s$ for $0 \leq s \leq t$. 
+
+    Let's work forward using the same strategy as in First Step Analysis: at $v(t, x)$, 
+    \begin{itemize}
+        \item $y = X_{t+\ep} \implies \E[f(X_T) \; | \; X_{t+\ep} = y] = v(t+\ep, y)$
+        \item $z = X_{t +\ep} \implies \E[f(X_T) \; | \; X_{t+\ep} = z] = v(t+\ep, z)$
+        \item $\vdots$
+    \end{itemize}
+
+    Then, if we average over all states at $t + \ep$, 
+    \[v(t,x) = \E[\E[f(X_T) \; | \; X_{t+\ep}] \; | \; X_t = x] = \E[v(t+ \ep, X_{t+\ep}) \; | \; X_t = x]\]
+
+    Now suppose we want $dv(t, X_t)$:
+    \begin{align*}
+        dv(t, X_t) &= \frac{\partial v}{\partial t}\, dt + \frac{\partial v}{\partial x}\, dX_t  + \frac{1}{2}\frac{\partial^2 v}{\partial t^2}\\ 
+        &= \left[\frac{\partial v}{\partial t} + \frac{1}{2}\frac{\partial^2 v}{\partial x^2}\right] \, dt + \frac{\partial v}{\partial x}\, dB_t
+    \end{align*}
+
+    So we have also that 
+    \[v(t + \ep, X_{t+\ep})- v(t, X_t) = \int_t^{t+\ep} dv(s, X_s) = \int_t^{t+\ep} \left[\frac{\partial v}{\partial t} + \frac{1}{2}\frac{\partial^2 v}{\partial x^2}\right] \, ds + \frac{\partial v}{\partial x}\, dB_s\]
+    and 
+    \[\E[v(t+\ep), X_{t+\ep}] - v(t,x) = \E\left[\int_t^{t+\ep} \left[\frac{\partial v}{\partial t} + \frac{1}{2}\frac{\partial^2 v}{\partial x^2}\right] \, ds\right] + \E\left[\int_t^{t+\ep} \frac{\partial v}{\partial x}\, dB_s\right] = 0\]
+
+    Which lets us write our initial condition by  
+    \[\frac{\partial v}{\partial t} + \frac{1}{2}\frac{\partial^2 v}{\partial x^2} = 0\]
+    and this is just the reverse time heat equation! 
+
+\end{document}  
+
  

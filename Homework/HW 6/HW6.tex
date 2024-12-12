@@ -1,0 +1,203 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\geometry{letterpaper, margin=0.25in}
+\usepackage{graphicx} 
+\usepackage{parskip}
+\usepackage{booktabs}
+\usepackage{array} 
+\usepackage{paralist} 
+\usepackage{verbatim}
+\usepackage{subfig}
+\usepackage{fancyhdr}
+\usepackage{sectsty}
+\usepackage[shortlabels]{enumitem}
+
+\pagestyle{fancy}
+\renewcommand{\headrulewidth}{0pt} 
+\lhead{}\chead{}\rhead{}
+\lfoot{}\cfoot{\thepage}\rfoot{}
+
+%%% ToC (table of contents) APPEARANCE
+\usepackage[nottoc,notlof,notlot]{tocbibind} 
+\usepackage[titles,subfigure]{tocloft}
+\renewcommand{\cftsecfont}{\rmfamily\mdseries\upshape}
+\renewcommand{\cftsecpagefont}{\rmfamily\mdseries\upshape} %
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{empheq}
+\usepackage{xcolor}
+\usepackage{bbm}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{tikz-cd}
+\pgfplotsset{compat=1.18}
+
+\newcommand{\ans}[1]{\boxed{\text{#1}}}
+\newcommand{\vecs}[1]{\langle #1\rangle}
+\renewcommand{\hat}[1]{\widehat{#1}}
+
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\C}{\mathbb{C}}
+
+\newcommand{\ind}{\mathbbm{1}}
+\newcommand{\qed}{\quad \blacksquare}
+
+\newcommand{\brak}[1]{\left\langle #1 \right\rangle}
+\newcommand{\bra}[1]{\left\langle #1 \right\vert}
+\newcommand{\ket}[1]{\left\vert #1 \right\rangle}
+
+\newcommand{\abs}[1]{\left\vert #1 \right\vert}
+\newcommand{\mfX}{\mathfrak{X}}
+\newcommand{\ep}{\varepsilon}
+
+\newcommand{\Ec}{\mathcal{E}}
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\Cc}{\mathcal{C}}
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\M}{\mathcal{M}}
+\newcommand{\X}{\chi}
+\renewcommand{\L}{\mathcal{L}}
+
+\newcommand{\sub}{\subseteq}
+\newcommand{\st}{\text{ s.t. }}
+\newcommand{\card}{\text{card }}
+\renewcommand{\div}{\vspace*{10pt}\hrule\vspace*{10pt}}
+\newcommand{\surj}{\twoheadrightarrow}
+\newcommand{\inj}{\hookrightarrow}
+\newcommand{\biject}{\hookrightarrow \hspace{-8pt} \rightarrow}
+\renewcommand{\bar}[1]{\overline{#1}}
+\newcommand{\overcirc}[1]{\overset{\circ}{#1}}
+\newcommand{\diam}{\text{diam }}
+
+\renewcommand{\Re}{\text{Re}\,}
+\renewcommand{\Im}{\text{Im}\,}
+\newcommand{\sign}{\text{sign}\,}
+
+\newcommand*{\tbf}[1]{\ifmmode\mathbf{#1}\else\textbf{#1}\fi}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable, skins}
+\tcbset{enhanced}
+\newenvironment*{tbox}[2][gray]{
+    \begin{tcolorbox}[
+        parbox=false,
+        colback=#1!5!white,
+        colframe=#1!75!black,
+        breakable,
+        title={#2}
+    ]}
+    {\end{tcolorbox}}
+
+\newenvironment*{exercise}[1][red]{
+    \begin{tcolorbox}[
+        parbox=false,
+        colback=#1!5!white,
+        colframe=#1!75!black,
+        breakable
+    ]}
+    {\end{tcolorbox}}
+
+\newenvironment*{proof}[1][blue]{
+\begin{tcolorbox}[
+    parbox=false,
+    colback=#1!5!white,
+    colframe=#1!75!black,
+    breakable
+]}
+{\end{tcolorbox}}
+
+\title{APMA 1930X: Homework 6}
+\author{Milan Capoor}
+\date{13 December 2024}
+
+\begin{document}
+\maketitle
+
+Fix an arbitrary time $T > 0$. Let $r, \theta, \sigma$ be given constants with $\sigma > 0$.
+Consider the controlled process
+\[\frac{dX_t}{X_t} = (r + \theta \pi_t)\; dt + \sigma \pi_t \; dBt,\quad X_0 = x_0\] 
+where $\pi  = {\pi_t : 0 \leq t \leq T}$ is the control. 
+
+Our goal is to maximize the expected power utility $\E[\sqrt{X_T}]$ over all control policies $\pi$. Your task is to
+\begin{enumerate}
+    \item clearly define the value function;
+    \item write down the Hamilton-Jacobi-Bellman (HJB) equation and give some short explanation as to how you arrive at this equation;
+    \item solve the HJB equation explicitly;
+    \item identify the optimal control policy $\pi^*$ explicitly.
+\end{enumerate}
+
+\tbf{Hint:} In order to solve the equation, you can assume that the value function $v(t, x)$ takes the form $f(t)\sqrt{x}$ for some function $f$. Then you can turn the HJB equation (a partial differential equation) into a very simple ordinary differential equation of $f$.
+
+    \color{blue}
+        Our goal is to maximize the expected power utility $\E[\sqrt{X_T}]$ over all control policies $\pi$ on $[0, T]$.
+
+        Hence, 
+        \[v(t, x) = \sup_{\pi_t} \E\left[\int_t^{T} \sqrt{X_s}\; ds \; | \; X_t = x\right]\]
+        and we seek $v(0, x_0)$. 
+
+        Let $\ep > 0$ be a small increment in time. As always, applying an optimal control for $[t + \ep, T]$ and an arbitrary control $[t, t + \ep]$, 
+        \[v(t, x) \geq \E\left[\int_t^{t + \ep} \sqrt{X_s}\; ds + v(t+ \ep, X_{t + \ep}) \right]\]
+
+        First consider $\E[v(t + \ep, X_{t + \ep})]$:
+        \begin{align*}
+            d(v(t, X_t)) &= \partial_t v(t, X_t) \; dt + \partial_x v(t, X_t) \; dX_t + \frac{1}{2} \partial_{xx} v(t, X_t) \; (dX_t)^2\\
+            &= \left[\frac{\partial v}{\partial t} + (r + \theta \pi_t)x \frac{\partial v}{\partial x} + \frac{1}{2} \sigma^2 \pi_t^2x^2 \frac{\partial^2 v}{\partial x^2}\right] \; dt + \sigma \pi_t x \frac{\partial v}{\partial x} \; dB_t
+        \end{align*}
+        with partial derivatives evaluated at $(t, X_t)$.
+
+        Now, 
+        \begin{align*}
+            v(t + \ep, X_{t + \ep}) - v(t, X_t) &= \int_{t}^{t + \ep} \; dv(s, X_s)\\ 
+                &= \int_{t}^{t + \ep} \left[\frac{\partial v}{\partial t} + (r + \theta \pi_s)x \frac{\partial v}{\partial x} + \frac{1}{2} \sigma^2 \pi_s^2x^2 \frac{\partial^2 v}{\partial x^2}\right] \; ds + \int_t^{t + \ep} \sigma \pi_t x\frac{\partial v}{\partial x} \; dB_s
+        \end{align*}
+        
+        And because stochastic integrals have zero expectation, 
+        \[\E[v(t + \ep, X_{t, X_t})] - \E[v(t, X_t)] = \E\left[\int_{t}^{t + \ep} \left[\frac{\partial v}{\partial t} + (r + \theta \pi_s) x\frac{\partial v}{\partial x} + \frac{1}{2} \sigma^2 \pi_s^2 x^2 \frac{\partial^2 v}{\partial x^2}\right] \; ds\right] = 0\]
+
+        So we have our HJB equation given by 
+        \[\max_{\pi_t} \left[\frac{\partial v}{\partial t} + (r + \theta \pi_t) x\frac{\partial v}{\partial x} + \frac{1}{2} \sigma^2 \pi_t^2 x^2\frac{\partial^2 v}{\partial x^2}\right] = 0\]
+
+        For simplicity, we will assume that $v(t, x) = f(t)\sqrt{x}$ for some function $f$ and verify our solution. 
+
+        With this assumption, the HJB equation becomes
+        \begin{gather*}
+            f'(t)\sqrt{x} + \frac{(r + \theta \pi_t)x f(t)}{2\sqrt{x}} -  \frac{\sigma^2 \pi_t^2 x^2f(t)}{8x^{3/2}} = 0\\ 
+            f'(t)\sqrt{x} + \frac{\sqrt x}{2}(r + \theta \pi_t)f(t) -\frac{1}{8} \sigma^2 \pi_t^2 \sqrt{x} f(t) = 0\\ 
+            f'(t) + \left[\frac{1}{2}(r + \theta \pi_t) - \frac{1}{8}\sigma^2 \pi_t^2\right]f(t) = 0
+        \end{gather*}
+        with terminal condition $v(T, x) = \sqrt{x} \implies f(T) = 1$.
+
+        Letting $\beta = \frac{1}{2}(r + \theta \pi_t) - \frac{1}{8}\sigma^2 \pi_t^2$, we have the simple ODE 
+        \[f'(t) + \beta f(t) = 0 \implies f(t) = Ce^{-\beta t}\]
+        
+        Using the terminal condition, $f(T) = 1 \implies C = e^{\beta T}$. Hence,
+        \[f(t) = e^{\beta(T - t)} \implies \boxed{v(t, x) = e^{\beta(T - t)}\sqrt{x}}\] 
+
+        Finally, the optimal control is given by 
+        \begin{gather*}
+            \max_{\pi_t} \beta = \max_{\pi_t}\left[\frac{1}{2}(r + \theta \pi_t) - \frac{1}{8}\sigma^2 \pi_t^2\right]\\ 
+            \frac{d}{d\pi}\left[\frac{1}{2}(r + \theta \pi) - \frac{1}{8}\sigma^2 \pi^2\right] = 0\\
+            \frac{1}{2}\theta - \frac{\sigma^2}{4} \pi = 0\\ 
+            \boxed{\pi^* = \frac{2\theta}{\sigma^2}}
+        \end{gather*}
+
+        So, at last, the maximized expected power utility is 
+        \begin{align*}
+            v(0, x_0) &= \sqrt{x_0} \exp\left[\left(\frac{1}{2}(r + \theta \pi^*) - \frac{1}{8}\sigma^2 (\pi^*)^2\right)(T)\right]\\ 
+            &= \sqrt{x_0}\exp\left[\left(\frac{1}{2}(r + \theta \cdot \frac{2\theta}{\sigma^2}) - \frac{1}{8}\sigma^2 \cdot \frac{4\theta^2}{\sigma^4}\right)(T)\right]\\ 
+            &= \boxed{\sqrt{x_0}\exp\left[T\left(\frac{r}{2} + \frac{\theta^2}{\sigma^2} - \frac{\theta^2}{2\sigma^2}\right)\right]}
+        \end{align*}
+
+        
+    \color{black}
+
+\end{document}

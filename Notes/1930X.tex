@@ -1,7 +1,7 @@
 \documentclass[12pt]{report} 
 \usepackage[utf8]{inputenc}
 \usepackage{geometry}
-\geometry{letterpaper}
+\geometry{letterpaper, margin=0.5in}
 \usepackage{graphicx} 
 \usepackage{parskip}
 \usepackage{booktabs}
@@ -71,7 +71,6 @@
 
 \newcommand*{\tbf}[1]{\ifmmode\mathbf{#1}\else\textbf{#1}\fi}
 
-
 \usepackage{tcolorbox}
 \tcbuselibrary{breakable, skins}
 \tcbset{enhanced}
@@ -93,6 +92,15 @@
         breakable
     ]}
     {\end{tcolorbox}}
+
+\newenvironment*{proof}[1][blue]{
+\begin{tcolorbox}[
+    parbox=false,
+    colback=#1!5!white,
+    colframe=#1!75!black,
+    breakable
+]}
+{\end{tcolorbox}}
 
 \title{APMA 1930X: Probability, Optimization, and Stochastic Calculus}
 \author{Milan Capoor}
@@ -2515,7 +2523,7 @@
 
     \tbf{Remark:} When we write $nt$ in the sum, we mean it is defined when $nt$ is an integer and as a linear interpolation between the two closest integers otherwise.
 
-    But this time scaling is not enough to fully put the RW in a pcutre since $S^{(n)}$, the state of the RW, can take very large values. So how should be scale the state space?
+    But this time scaling is not enough to fully put the RW in a picture since $S^{(n)}$, the state of the RW, can take very large values. So how should be scale the state space?
 
     If we scale by a factor of $1/n$, the process is 
     \[\frac{1}{n} S^{(n)}(t) = \frac{1}{n}\sum_{i=1}^{nt} X_i\]
@@ -2718,7 +2726,7 @@
 
 \section{Nov 8}
 \section{Stochastic Integral}
-    Throughout this section, we will implicitly assume that teh reference process is some standard Brownian motion $B = \{B_t: t \geq 0\}$. A classsical Riemann integral is of the form 
+    Throughout this section, we will implicitly assume that teh reference process is some standard Brownian motion $B = \{B_t: t \geq 0\}$. A classical Riemann integral is of the form 
     \[\int_a^bf(x) \; dx\]
     representing the sum of infinitesimal increments. 
     
@@ -2756,7 +2764,7 @@
         In the Riemann integral, this second term tends to 0. However, by the definition of Brownian motion, 
         \[B_{t_{i+1}} - B_{t_i} \sim N(0, t_{i+1} - t_i) = N(0, \frac{T}{n})\]
 
-        It follows that $\sqrt{n}(B_{t_{i+1}}- B_{t_i})$ are iid $N(0, T)$ R.V. for $i =0, 1, 2, \dots, n -1$. Therefore, $n(B_{t_{i+1}} - B_{t_i})^2$ are iid random variabnles with expected value 
+        It follows that $\sqrt{n}(B_{t_{i+1}}- B_{t_i})$ are iid $N(0, T)$ R.V. for $i =0, 1, 2, \dots, n -1$. Therefore, $n(B_{t_{i+1}} - B_{t_i})^2$ are iid random variables with expected value 
         \[E[n(B_{t_{i+1}} - B_{t_i})^2] = 0 + T = T\]
 
         So 
@@ -2801,7 +2809,7 @@
         Q_n = \sum_{i=1}^{n-1} F''(B_{t_i}) \left[(B_{t_{i+1}} - B_{t_i})^2 - \Delta t_i\right] &\overset{n \to \infty}{\longrightarrow} 0
     \end{align*}
 
-    The first equation is obvious. The second is a bit more subtle. Recall that $B_{t_{i+1}} - B_{t_i} = \sqrt{\Delta t_i} Z_i$ where $Z_i \sim N(0, 1)$. Further, by the independenet increment property of Brownian motion, $Z_i$ is independent of 
+    The first equation is obvious. The second is a bit more subtle. Recall that $B_{t_{i+1}} - B_{t_i} = \sqrt{\Delta t_i} Z_i$ where $Z_i \sim N(0, 1)$. Further, by the independent increment property of Brownian motion, $Z_i$ is independent of 
     \[\{Z_0, Z_1, \dots, Z_{i-1}, F''(B_{t_0}), F''(B_{t_1}), \dots, F''(B_{t_{i-1}})\}\]
 
     Then all the cross terms have $0$ expected value so 
@@ -2855,9 +2863,9 @@
     Let's make some notational choices for simplification under multiplication:
     \begin{center}
         \begin{tabular}{|c|cc|}
-            \hline\\ 
+            \hline 
             $\cdot$ & $dt$ & $dB_t$\\
-            \hline\\
+            \hline
             $dt$ & $0$ & $0$\\
             $dB_t$ & $0$ & $dt$\\
             \hline
@@ -3065,6 +3073,836 @@
     \[\frac{\partial v}{\partial t} + \frac{1}{2}\frac{\partial^2 v}{\partial x^2} = 0\]
     and this is just the reverse time heat equation! 
 
-\end{document}  
+\section{Nov 15}
+\subsection{Bang Bang Control}
+    Let $B = \{B_t\}$ be the standard 1-D Brownian motion and consider 
+    \[dX_t = -u_t \, dt + dB_t\]
+    with goal 
+    \[\min_{\{u_t\}} \E\left[\int_0^{\infty} e^{-\alpha t} X_t^2 \; dt\right]\]
+    for $\alpha > 0$ and $-1 \leq u \leq 1$.
+
+    This is just an infinite horizon continuous control problem. 
+
+    Our value function only depends on the current state, so define 
+    \[v(x) = \min_{\{u_t\}} \E\left[\int_0^{\infty} e^{-\alpha t} X_t^2 \; dt \; \bigg\vert X_0 = x\right]\]
+    
+    What equation should $v$ satisfy? As normal, suppose we use an arbitrary constant control on $[0, \ep]$ and optimal control afterwards. The cost on $[\ep, \infty]$ is just $v(X_{\ep})$ so the total cost is 
+    \[\int_0^{\ep} e^{-\alpha t} X_t^2\; dt + e^{-\alpha \ep} v(X_{\ep}) \]
+
+    And by optimality, we know this is $\geq v(x)$ for any initial $u$. 
+
+    Let's consider $d[e^{-\alpha t} v(X_t)]$ on $0 \leq t \leq \ep$:
+    \begin{align*}
+        d[e^{-\alpha t} v(X_t)] &= e^{-\alpha t} dv(X_t) + v(X_t) d(e^{-\alpha t}) + d(e^{-\alpha t}) dv(X_t)\\ 
+        &= e^{-\alpha t}  dv(X_t) + v(X_t)\; d(e^{-\alpha t})\\ 
+        &= e^{-\alpha t} [v'(X_t) \; dX_t + \frac{1}{2}v''(X_t)(dX_t)^2] - \alpha e^{-\alpha t} v(X_t)\; dt\\ 
+        &= e^{-\alpha t} [v'(X_t) (-u_t \; d_t + dB_t) + \frac{1}{2}v''(X_t) \; dt] - \alpha e^{-\alpha t} v(X_t)\; dt\\ 
+        &= e^{-\alpha t} [-u_t v'(X_t) + \frac{1}{2}v''(X_t) -\alpha v(X_t)] \; dt + e^{-\alpha t} v'(X_t)\; dB_t\\ 
+        e^{-\alpha \ep} v(X_{\ep}) &= v(X_0) + \int_0^{\ep} \alpha (e^{-\alpha t} v(X_t))\\ 
+            &= \boxed{v(X_0) + \int_0^{\ep} e^{-\alpha t} [\frac{1}{2} v''(X_t) - u_t v'(X_t) - \alpha v(X_t)] + \int_0^{\ep} e^{-\alpha t} v'(X_t)\; dB_t}
+    \end{align*}
+
+    Taking the expected value, we have 
+    \[\E[e^{-\alpha \ep} v(X_{\ep})] = v(X_0) + \E\left[\int_0^{\ep} e^{-\alpha t} [X_t^2 + \frac{1}{2}v''(X_t) - u_t v'(X_t) - \alpha v'(X_t)] \; dt\right]\]
+    and we know that the RHS is $\geq 0$ for any $u_t = u$ and any time $\ep$. 
+
+    This tells us that for any $u$, 
+    \[0 \leq x^2 + \frac{1}{2}v''(x) - uv'(((x) - \alpha v(x)))\]
+    so we want to solve 
+    \[\min_{-1 \leq u \leq 1} [x^2 + \frac{1}{2}v''(x) - uv'(x) - \alpha v(x)] = 0\]
+    for optimal control $u^*$ given by the minimizer. In fact, this is the (viscosity solution of) \tbf{Hamilton-Jacobi-Bellman Equation}.
+
+    Notice that to minimize the above, we can maximize $uv'(x)$. But this is trivial:
+    \[\max_{-1 \leq u \leq 1} [uv'(x)] = \begin{cases}
+        1 & v'(x) > 0\\
+        -1 & v'(x) < 0\\
+        \text{any } u & v'(x) = 0
+    \end{cases}\]
+
+    This is why this is called bang bang control. It also leads us to conjecture that the value function is symmetric. Let's focus on 
+    \[x^2 + \frac{1}{2} v''(x) - v'(x) - \alpha v(x) = 0\]
+    for $x > 0$. 
+
+    From ODEs, the characteristic equation is 
+    \[\frac{1}{2}r^2 - r - \alpha = 0 \implies \begin{cases}
+        r_1 = 1 + \sqrt{1 + 2\alpha}\\
+        r_2 = 1 - \sqrt{1 + 2\alpha}
+    \end{cases}\implies v_h(x) = Ae^{r_1 x} + Be^{r_2x}\]
+
+    And we can take a particular solution of the form $v_p(x) = C_1x^2 + C_2x + C_3$ (with some extra work to actually find those constants), giving 
+    \[v(x) = v_h(x) + v_p(x) = Ae^{r_1x} + Be^{r_2x} + \frac{1}{\alpha}x^2 + \frac{2b}{\alpha^2}x + \frac{2b^2}{\alpha^3}\]
+
+    Let's try to find $A$ and $B$. 
+    
+    If $A < 0$, then $v(x)$ becomes negative for large $x$ which is not possible. So $A \geq 0$. On the other hand, if $A > 0$, $v$ grows exponentially.  
+
+    Consider $u_t = 0$. Then $v(x) \leq \E[\int_0^{\infty} e^{-\alpha t} (x + B_t^2) \; dt]$ which is a quadratic function of $x$ (i.e. it grows at most quadratically). Hence, $A = 0$: 
+    \[v(x) = Be^{r_2 x} + \frac{x^2}{\alpha} - \frac{2bx}{\alpha^2} + \frac{1}{\alpha^2} + \frac{2b^2}{\alpha^3}, \quad r_2 = b- \sqrt{b^2 + 2\alpha}, \quad \text{ if } x  >\theta\]
+
+    Similarly, (abusing notation on $A$ and $r_1$),
+    \[v(x) = Ae^{r_1 x} + \frac{x^2}{\alpha} - \frac{2ax}{\alpha^2} + \frac{1}{\alpha^2} + \frac{2ba2}{\alpha^3}, \quad r_1 = a + \sqrt{a^2 + 2\alpha}, \quad \text{ if } x  <\theta\]
+
+    We need three equations for the three unknowns:
+    \begin{enumerate}
+        \item $v$ is expected to be continuous at $\theta$
+        \item $v$ is expected to be continuosly differentiable at $\theta$
+        \item $v$ is expected to be twice continuously differentiable at $\theta$
+    \end{enumerate}
+
+    This gives us 
+    \begin{gather*}
+        Be^{r_2 \theta} - \frac{2b\theta}{\alpha^2} + \frac{2b^2}{\alpha^3} = Ae^{r_1 \theta} - \frac{2a\theta}{\alpha^2} + \frac{2a^2}{\alpha^3}\\
+        r_2Be^{r_2 \theta} + \frac{2\theta}{\alpha} - \frac{2b}{\alpha^2} = 0\\ 
+        r_1Ae^{r_1 \theta} + \frac{2\theta}{\alpha} - \frac{2a}{\alpha^2} = 0
+    \end{gather*}
+
+    After some tedious work,
+    \begin{align*}
+        \theta &= \frac{r_1 + r_2}{2\alpha}\\ 
+        A &= \frac{2}{r_1}(\frac{a}{\alpha^2} - \frac{\theta}{\alpha}) e^{-r_1\theta}\\ 
+        B &= \frac{2}{r_2}(\frac{b}{\alpha^2} - \frac{\theta}{\alpha}) e^{-r_2\theta}
+    \end{align*}
+
+    So we now have a twice continuously differentiable solution $v$. However, we still need to verify that $v'(x) > 0$ if $x > \theta$ and $v'(x) < 0$ if $x < \theta$. This will justify the frm of the optimal control and the consequent equations. 
+
+    \begin{exercise}
+        \textbf{Exercise:} Verify these inequalities. \emph{Hint:} it suffices to argue $v$ is convex ($v''(x)> 0$)
+    \end{exercise}
+
+    \begin{tbox}{\textbf{Theorem:} The twice continuously differentiable solution $v$ we obtained above is indeed the value function of the control problem. Further,
+        \[u^*(x) = \begin{cases}
+            b & x > \theta\\
+            a & x < \theta
+        \end{cases}\] 
+        defines a control strategy $u_t^* = u^*(X_t)$ which is optimal}
+        \emph{Proof:} Let $u = \{u_t\}$ be an arbitrary control. 
+
+        Define 
+        \[Y_t = \int_0^t e^{-\alpha s} X_s^2 \; ds + e^{-\alpha t} v(X_t)\]
+        (use the control to $t$ and then the optimal control afterwards). 
+
+        Invoking Itô, 
+        \begin{align*}
+            dY_t &= e^{-\alpha t} X_t^2\; dt - \alpha e^{-\alpha t} v(X_t)\; dt + e^{-\alpha t} v'(X_t)\; dX_t + \frac{1}{2} e^{-\alpha t} v''(X_t) \; (dX_t)^2\\
+            &= e^{-\alpha t} [X_t^2 - \alpha v(X_t) - u_t v'(X_t) + \frac{1}{2}v''(X_t)]\; dt + e^{-\alpha t} v'(X_t)\; dB_t
+        \end{align*}
+
+        Since $v$ satisfies the HJB equation, the bracketed term is nonnegative so 
+        \[\E[Y_t] \geq \E[Y_0] = v(X_0) \qquad \forall t\]
+
+        As $t \to \infty$,
+        \[E\left[\int_0^{\infty} e^{-\alpha s} X_s^2\; ds\right] \geq v(X_0)\] 
+
+        But if we use $u^*(x)$, then all the inequalities become equalities. It follows that $u^*$ is optimal and $v$ is the value function.
+    \end{tbox}
+
+\chapter{Introduction to Computational Finance}
+\section{Nov 18}
+\subsection*{Arbitrage Free Principle:} 
+    Equivalently,
+    \begin{itemize}
+        \item ``there is no free lunch in an efficient market''
+        \item there are no arbitrage opportunities in an efficient market
+        \item It is not true that a portfolio can satisfy 
+        \[\P(X_0 = 0) = 1, \quad \P(X_T \geq 0) = 1, \quad \P(X_T > 0) > 0\]
+        (you can not get something starting from nothing)
+    \end{itemize}
+
+\subsection*{Binomial Trees:} 
+    We will begin with discrete time models to illustrate derivative pricing.
+
+    In a binomial tree model, time is discrete. Consider a market with two assets: one risk-free, one risky. 
+    \begin{enumerate}
+        \item A risk-free asset (here, a ``bond'') is interest bearing. Assume that \$1 at time $n$ will become \$R at time $n +1$ (compounding)
+        \item The price of the risky asset (here, a ``stock'') is such that if $X_n = x$, then $\P(X_{n+1} = ux) = 1 - p$, $\P(X_{n+1} = dx) = 1 - p = q$ for $0 < d < u$ and $0 < p < 1$
+    \end{enumerate}
+
+    We can model this:
+    %%% BINOMIAL TREE DIAGRAM %%%
+    \begin{center}
+        \begin{tikzpicture}[-> , >= stealth, shorten >=2pt, line width =0.5 pt,
+        node distance=2 cm]  
+            \node (u2S) {$u^2S$};
+            \node (udS) [below of = u2S] {$udS$};
+            \node (d2S) [below of = udS] {$d^2S$};
+    
+            \node (uS) [left = of $(u2S)!0.5!(udS)$] {$uS$};
+            \node (dS) [left = of $(udS)!0.5!(d2S)$] {$dS$};
+    
+            \node (S) [left = of $(uS)!0.5!(dS)$] {$S$};
+    
+            \draw (S) -- (uS) node [midway, above] {$p$};
+            \draw (S) -- (dS) node [midway, below] {$q$};
+            \draw (uS) -- (u2S); 
+            \draw (uS) -- (udS);
+            \draw (dS) -- (udS);
+            \draw (dS) -- (d2S);
+        \end{tikzpicture}
+    \end{center}
+
+    Suppose we have a derivative (here, an ``option'') whose payoff depends on the price of the stock. Using the above tree as an example, assume the option holder will receive amount $C_1, C_2, C_3$ at $n = 2$ depending on the stock price, respectively. What should be the price at time $n= 0$? 
+
+    Intuitively, they will receive $C_1$ with probability $p^2$, $C_2$ with probability $2pq$, and $C_3$ with probability $q^2$. So it would make sense to price the option at 
+    \[\frac{1}{R^2}(p^2C_1 + 2pq C_2 + q^2 C_3)\]
+
+    But this is actually a problem. Consider the corollary to the arbitrage free principle: any risk-free portfolio must have the same return as the bond. 
+
+    Suppose there is a portfolio with value $v$ at time $n=0$ and value $v_1$ at $n = 1$, regardless of the stock price movement. Then we must have $v_1 = Rv$. WLOG, say the bond price at $n =0$ is \$1. 
+    \begin{itemize}
+        \item $v_1 > Rv$. Starting with \$0, we can sell $v$ units of the bond to finance our buying of one unit of the risk-free portfolio. At time $n=1$, we can clear all positions and leave with wealth $v_1 - Rv > 0$. This is an arbitrage. 
+        \item $v_1 < Rv$. We can simply reverse the positions in the previous construction and still get an arbitrage.
+    \end{itemize} 
+
+    Therefore, the arbitrage free principle demands that $v_1 = Rv$ -- there can only be one growth rate $R$ for any risk-free assets. (\$1 tomorrow must be worth \$1/R today)
+
+    \tbf{Example:} Consider a binomial tree with one period. Assume the stock price $S_0 = 10$, $u = 1/d = 2$, the risk-free interest rate is $0$ or $R=1$. 
+
+    Consider a \emph{call option} with strike price $K = 14$ and maturity $n=1$. The option payoff at $n=1$ is 
+    \[X = (S_1 - 14)^+\] 
+
+    What should the price or value of the option be at $n=0$?
+    
+    With probability $p$, $X_1 = 20$ (payoff = \$6), and with probability $q$, $X_1 = 5$ (payoff = \$0).
+
+    Consider a portfolio that consists of one share of the call and $x$ shares of the stock. Note that the value at $n = 1$ is either $20x + 6$ if the stock price climbs to $20$ or $5x$ if the stock price falls to $5$.
+
+    Therefore, pick $x$ so 
+    \[20x + 6 = 5x, \quad \text{ or } \quad x = -0.4\]
+    then the value of the portfolio is fixed at $20x + 6 = 5x = -2$ at maturity \emph{no matter how much the stock price moves}.
+
+    Suppose that the call option's price is $v$ at $t = 0$. Then the value of the risk-free portfolio is $10x + v = -4+v$ at $t = 0$ and $-2$ at $t = 1$.
+
+    Since $R=1$, the risk-free portfolio must satisfy 
+    \[-4 + v = R(-4 + v) = -2, \quad \text{ or } \quad v = 2\]
+    thanks to the arbitrage free principle.
+
+\section{Nov 20}
+\subsection{General Pricing Formula}
+    Consider a general one-period binomial tree with $S_0 = S$ and an option maturity with $n=1$ and payoff 
+    \[X = \begin{cases}
+        C_u & S_1 = uS\\
+        C_d & S_1 = dS
+    \end{cases}\]
+    with $d < R < u$. (\emph{Note:} this is not just an assumption but dictated by the arbitrage-free principle)
+
+    \begin{exercise}
+        \textbf{Exercise:} Construct arbitrage opportunities when the inequality is violated
+    \end{exercise}
+
+    Construct a portfolio with one share of the option and $x$ shares of the stock so that the portfolio will have a fixed value at maturity, regardless of the stock price: 
+    \[uS \cdot x + C_u = dS \cdot x + C_d \quad \text{ or } \quad x = -\frac{C_u - C_d}{uS - dS}\]
+
+    Suppose the option price is $v$ at $n = 0$. Then the value of the risk-free portfolio is $xS + v$ at $n = 0$. Therefore, 
+    \[(v + xS)R = uS\cdot x + C_u \implies v = \frac{1}{R}\left(\frac{R-d}{u -d} \cdot C_u + \frac{u-R}{u-d} \cdot C_d\right) \] 
+
+    But note that $p$ and $q$ play no role in option pricing whatsoever! 
+
+    Even though this is just a one-period model, we have several properties of option pricing:
+    \begin{itemize}
+        \item \tbf{Risk-Neutral Probability}. Under $(p^*, q^*) = (\frac{R-d}{u-d}, \frac{u-R}{u-d})$, 
+        \[v = \E^*[\frac{1}{R}X] = \frac{1}{R}(p^*C_u + q^*C_d)\] 
+        where $\E^*$ is the expectation as if the stock price would move up to $uS$ with probability $p^*$ and move down to $dS$ with probability $q^*$.
+
+        This is said to be risk-neutral because, under this probability, the growth rate of the stock price (a risky asset) equals the risk free bond:
+        \[\E[S_1] = p^* \cdot uS + q^* \cdot dS = \left(\frac{R-d}{u - d}\cdot uS + \frac{u -R}{u -d} \cdot dS\right) = RS\]
+
+        Finally, the risk-neutral probability is determined by the structure of the binomial tree and the growth rate $R$, not the option payoff. 
+
+        \item The real world probabilities $(p, q)$ play no role in the pricing of options. The price of an option is the expected value of the discounted option payoff at maturity, under the risk-neutral probability.
+        
+        \item \tbf{Hedging}. Notice that our portfolio includes one share of the option and $x$ shares of the stock. In general, one can use one risky asset (stock) to hedge away the risk associated with another risky asset (option). In this very simple model, one can hedge away teh risk completely. In practice, this is not possible but one can certainly reduce the risk. We call $-x$ the \emph{delta} of the option:
+        \[\delta = -x = \frac{C_u - C_d}{uS- dS} = \frac{\Delta V}{\Delta S}\]
+        where $\Delta V$ means the change in the value of the option and $\Delta S$ is the change in the stock price. 
+
+        \item \tbf{Replication}. Our construction of the portfolio \emph{replicated} the risk-free asset (the bond). In the other direction, we can use a bond and stock to replicate an option: starting with an initial wealth that equals the price $v$ of the option, we can construct a portfolio that has the same value as the option at maturity. If we buy 
+        \[\delta = \frac{C_u - C_d}{uS - dS}\]
+        shares of stock at time $t = 0$, the cash position at $t =0$ will become $v - \delta S$. At $t = 1$, the value of the portfolio will be
+        \[R(v - \delta S) + \delta S_1 = \begin{cases}
+            C_u & S_1 = uS\\
+            C_d & S_1 = dS
+        \end{cases}\]
+    \end{itemize}
+
+\subsection{General Binomial Tree}
+    Consider an $n$-period binomial tree and an option with payoff $X$ at time $n$. Its price at time $n = 0$ is simply 
+    \[v = \frac{1}{R^n} \E^*[X]\]
+    the discounted average payoff under the risk-neutral probability.
+
+    We can introduce a recursive option pricing formula by looking first at the three-period binomial model:
+
+    %%% BINOMIAL TREE DIAGRAM %%%
+    \begin{center}
+    \begin{tikzpicture}[-> , >= stealth, shorten >=2pt, line width =0.5 pt,
+    node distance=2 cm]
+        \node (C1) {$C_1$};
+        \node (C2) [below of= C1] {$C_2$};
+        \node (C3) [below of= C2] {$C_3$};
+        \node (C4) [below of= C3] {$C_4$};
+
+        \node (u3S) [left of = C1] {$u^3S$};
+        \node (u2dS) [left of = C2] {$u^2sS$};
+        \node (ud2S) [left of = C3] {$ud^2S$};
+        \node (d3S) [left of = C4] {$d^3S$};
+
+        \node (u2S) [left = of $(u3S)!0.5!(u2dS)$] {$u^2S$};
+        \node (udS) [left = of $(ud2S)!0.5!(u2dS)$] {$udS$};
+        \node (d2S) [left = of $(ud2S)!0.5!(d3S)$] {$d^2S$};
+
+        \node (uS) [left = of $(u2S)!0.5!(udS)$] {$uS$};
+        \node (dS) [left = of $(udS)!0.5!(d2S)$] {$dS$};
+
+        \node (S) [left = of $(uS)!0.5!(dS)$] {$S$};
+
+        \draw (S) -- (uS) node [midway, above] {$p$};
+        \draw (S) -- (dS) node [midway, below] {$q$};
+        \draw (uS) -- (u2S); 
+        \draw (uS) -- (udS);
+        \draw (dS) -- (udS);
+        \draw (dS) -- (d2S);
+        \draw (u2S) -- (u3S);
+        \draw (u2S) -- (u2dS);
+        \draw (udS) -- (u2dS);
+        \draw (udS) -- (ud2S);
+        \draw (d2S) -- (ud2S);
+        \draw (d2S) -- (d3S);
+
+        \draw (u3S) edge[dashed] (C1);
+        \draw (u2dS) edge[dashed] (C2);
+        \draw (ud2S) edge[dashed] (C3);
+        \draw (d3S) edge[dashed] (C4);
+    \end{tikzpicture}
+    \end{center}
+    
+    Let $V_i$ be the value of the option at the $i$-th time step. In general, we expect $V_i$ to be a function of the stock price $S_i$. Model $V_i$ as a random variable taking values: 
+
+    \begin{center}
+        \begin{tabular}{ccc}
+            $S_2$ & $V_i$ & $V_i$ value\\ 
+            \hline \hline
+            \multicolumn{3}{c}{Time $n=2$}\\ 
+            $u_2S$ & $a$ & $\frac{1}{R}(p^* C_1 + q^* C_2)$\\
+            $udS$ & $b$ & $\frac{1}{R}(p^* C_2 + q^* C_3)$\\
+            $d^2S$ & $c$ & $\frac{1}{R}(p^* C_3 + q^* C_4)$\\
+            \multicolumn{3}{c}{Time $n=1$}\\ 
+            $uS$ & $d$ & $\frac{1}{R}(p^* a + q^* b)$\\
+            $dS$ & $e$ & $\frac{1}{R}(p^* b + q^* c)$\\
+            \multicolumn{3}{c}{Time $n=0$}\\
+            $S$ & $f$ & $\frac{1}{R}(p^* d + q^* e)$
+        \end{tabular}
+    \end{center}
+
+    Hence, the option's value $V$ satisfies 
+    \[\begin{cases}
+        V_3 = X\\ 
+        V_i = \E[\frac{1}{R} V_{i+1} \; | \; S_i], \quad i = 2, 1, 0
+    \end{cases}\]
+
+    By the tower property of expectation, 
+    \[\E[V_i] = \E[\frac{1}{R} V_{i+1}]\]
+    and
+    \[f = V_0 = \E[\frac{1}{R^3} V_3] = \E[\frac{1}{R^3} X]\]
+
+    In particular, with an initial wealth of $V_0$, one can construct a cash and stock portfolio whose value at time $n = 3$ replicated the option's payoff. Indeed, at $n=0$, we canconstruct a portfolio with value $V_1$ at $n = 1$, then analogously adjust the portfolio (based on if $S_1 = uS$ or $S_1 = dS$) to have value $V_2$ at $n = 2$, and so on.
+
+    In particular, $V_0$ is the \emph{only} price of the option consistent with the arbitrage-free principle. If $v \neq V_0$, then there is an arbitrage opportunity: 
+    \begin{enumerate}
+        \item If $v > V_0$: sell one share and buy such a replicating portfolio 
+        \item If $v < V_0$:buy one share and sell such a replicating portfolio. 
+    \end{enumerate}
+
+\section{Nov 22}
+    \tbf{Black-Scholes Model:} Consider a stock price $S_t$ that follows a geometric Brownian motion:
+    \[\S-t = S_0 \exp\left((\mu - \frac{\sigma^2}{2} t + \sigma B_t)\right)\]
+    or equivalently, 
+    \[dS_t = \mu S_t \; dt + \sigma S_t \; dB_t \]
+
+    We also assume that there is a risk-free asset with compound interest $r$ continuously, i.e. \$1 at $n = 0$ will become $e^{rt}$ at $n = t$. We can model this asset
+    \[dR_t = rR_t \; dt, \quad R_0 = 1\]
+
+    Suppose we have an option with payoff $X$ at maturity $t = T$. Its value at time $t = 0$ (using the multiperiod binomial tree model) is 
+    \[v = \E^*[\frac{1}{R_T} X] = \E^*[e^{-rT} X]\]
+    where $\E^*$ is the expectation under the risk-neutral probability.
+
+    Our goal here is to derive the dynamics of the stock price evolution using two approaches: Binomial trees and Ito calculus. Both assume the arbitrage free principle.
+
+\subsection*{Risk-Neutral Probability for Binomial Trees}
+    \tbf{Binomial Tree Approach:} Divide the time interval $[0, T]$ into $n$ pieces of length $\Delta t = T/n$. Consider a binomial tree with $n$ periods, where each period corresponds to $\Delta t$ in real time. The stock price will move up by a factor $u$ with probability $p$ and down by a factor $d$ with probability $q$ at each time step.
+
+    We will pick $p, u, d$ to math the distribution of the increments of the GBM $S_t$ over $\Delta t$. 
+
+    At $S_t = S$ and time $t + \Delta t$, the stock price is 
+    \[S_{t + \Delta t} = S\exp\left((\mu - \frac{\sigma^2}{2})\Delta t + \sigma(B_{t + \delta t} - B_t)\right)\]
+
+    Clearly, we cannot perfectly match the distribution. Instead, we will exactly match the expected value and match the variance up to order $\Delta t$:
+    \begin{align*}
+        Se^{\mu \Delta t} &= p \cdot uS + q \cdot dS\\
+        S^2 e^{(2\mu + \sigma^2)\Delta t} &= p \cdot (uS)^2 + q \cdot (dS)^2
+    \end{align*}
+
+    We impose the artificial constraint $u = 1/d$ to solve for three unknowns and obtain:
+    \[\begin{cases}
+        u = e^{\sigma \sqrt{\Delta t}}\\
+        d = e^{-\sigma \sqrt{\Delta t}}\\
+        p = \frac{e^{\mu\Delta t} - d}{u - d}
+    \end{cases}\]
+
+    This approximates the GBM as $n \to \infty$ but since each time period corresponds to $\Delta t$ in real time, $R = e^{r \Delta t}$. 
+
+    Therefore, the risk neutral probability is
+    \[\begin{cases}
+        p^* = \frac{R - d}{u - d} = \frac{e^{r\Delta t} - d}{u - d}\\ 
+        q^* = 1 - p^*
+    \end{cases}\]
+
+    So the price of the option with payoff $X$ and maturity $T$ is 
+    \[\E^*[\frac{1}{R^n} X] = \E^*[e^{-rT} X]\]
+
+    Notice that this is practically the same as the GBM formula with drift $r$ and volatility $\sigma$. Hence, in the limit and under the risk-neutral probability, the stock price is a geometric Brownian motion with 
+    \[S_t = S_0 \exp((r - \frac{\sigma^2}{2})t + \sigma B_t) \implies dS_t = rS_t \; dt + \sigma S_t \; dB_t\]
+    and the price of an  option  is the expected value of the discounted option payoff:
+    \[v = \E^*[e^{-rT} X]\]
+
+\subsection*{Risk-Neutral Probability for Ito Calculus:} 
+
+If there is a portfolio/asset whose value $Y_t$ evolves by $dY_t = Z_t\; dt$, then by the arbitrage-free principle, $Z_t = rY_t$. In other words, any risk-free asset must have the same growth rate as the bond. 
+
+\begin{proof}
+    \emph{Proof:} Consider a trading strategy that starts with \$0 at time $0$ and at time $t$ has position $\pi_t$ on the asset and puts the rest of the money in the bond. Let $X_t$ be the value of the portfolio at time $t$. Then
+    \begin{align*}
+        dX_t &= r(X_t - \pi_t Y_t)\; dt + \pi_t \; dY_t\\
+        &= rX_t \; dt + \pi_t (Z_t - rY_t)\; dt
+    \end{align*}
+    with $X_0 = 0$. Taking $\pi_t = \text{sign}(Z_t - rY_t)$, we have
+    \[dX_t = rX_t\; dt + \abs{Z_t - rY_t}\; dt\]
+    
+    Introducing $R_t = e^{rt}$, 
+    \[d\frac{X_t}{R_t} = d(e^{-rt} X_t) = \frac{\abs{Z_t - rY_t}}{R_t}\; dt\]
+    or 
+    \[\frac{X_T}{R_T} = X_0 + \int_0^T \frac{\abs{Z_t - rY_t}}{R_t}\; d = \int_0^T \frac{\abs{Z_t - rY_t}}{R_t}\; dt \geq 0\]
+    
+    But the arbitrage-free principle demands that $X_T = 0$ so $\abs{Z_t - rY_t} =0$ or $Z_t = rY_t$
+\end{proof}
+
+Return to the option with payoff $X$ at maturity $T$. Let $V_t = V(t, S_t)$ be the value of the option at time $t$. Thus $V(0, S_0) = v$ is the price of the option at $t = 0$. 
+
+Consider a portfolio that starts with one option and zero cash. At time $t$, suppose we have a position of $-\delta_t$ (delta hedging) on the stock and all the cash in the bond. Let $X_t$ (through a slight abuse of notation) be the value of this portfolio at time $t$. 
+
+Then the cash amount at time $t$ is $X_t - V_t + \delta S_t$ so 
+\[dX_t = dV_t + r(X_t - V_t + \delta_T S_t)\; dt - \delta_T \; dS_t\]
+
+By Ito, 
+\begin{align*}
+    dV_t &= dV(t, S_t) = \frac{\partial V}{\partial t} \; dt + \frac{\partial V}{\partial x} \; dS + \frac{1}{2} \frac{\partial^2 V}{\partial x^2} \; (dS_t)^2\\
+    &= \left[\frac{\partial V}{\partial t} + \frac{\partial V}{\partial x} \mu S_t + \frac{1}{2} \sigma^2 S_t^2 \frac{\partial^2 V}{\partial x^2}\right]\; dt + \frac{\partial V}{\partial x} \sigma S_t \; dB_t
+\end{align*}
+where all the derivatives are evaluated at $(t, x)$ with $x = S_t$.
+
+Hence, 
+\[dX_t = \left[\frac{\partial V}{\partial t} +\left(\frac{\partial V}{\partial x} - \delta_t\right)\mu S_t + \frac{1}{2} \frac{\partial^2 V}{\partial x^2}\sigma^2 S_t^2  + r(X_t - V_t + \delta S_t)\right]\; dt + \left(\frac{\partial V}{\partial x} - \delta_t\right)\sigma S_t \; dB_t\]
+
+Choosing $\delta_t = \frac{\partial V}{\partial x}(t, S_t)$, the integral term vanishes and we have
+\[dX_t = \left[\frac{\partial V}{\partial t} + \frac{1}{2} \frac{\partial^2 V}{\partial x^2}\sigma^2 S_t^2  + r(X_t - V_t + \delta S_t)\right]\; dt\]
+
+By the arbitrage-free principle, the growth rate must be $r$ so 
+\[\frac{\partial V}{\partial t} + \frac{1}{2} \frac{\partial^2 V}{\partial x^2}\sigma^2 S_t^2  + r(X_t - V_t + \delta S_t) = rX_t\]
+
+Equivalently, if the option payoff at maturity is $X = f(S_T)$, then its value $V(t, S_t)$ satisfies 
+\[\begin{cases}
+    -rV + \frac{\partial V}{\partial t} + \frac{\partial V}{\partial x} rx + \frac{1}{2}\frac{\partial^2 V}{\partial x^2} \sigma^2 x^2 = 0\\ 
+    V(T, x) = f(x)
+\end{cases}\]
+
+From the Feynman-Kac Formula, $V$ admits the representation
+\[V(t, x) = \E^*[f(S_T)e^{-r(T -t)}\; | \; S_t = x] = \E^*[Xe^{-r(T-t)}\; | \; S_t= x]\]
+where under $\E^*$ (the risk neutral probability), $S_t$ follows 
+\[dS_t = rS_t\; dt + \sigma S_t \; dB_t\]
+i.e. $S_t$ is a geometric Brownian motion which implies the value of the option is 
+\[v = \E^*[e^{-rT} X]\]
+
+We arrive at the same conclusion.
+
+
+\subsection{Black-Scholes Formula}
+    Consider an option with payoff $X$ at maturity $t = T$. Then the option price at $t = 0$ is 
+    \[v = \E^*[\frac{1}{R_T} X] = \E^*[e^{-rT} X]\]
+    where $\E^*$ is the expectation under the risk-neutral probability, the stock price is a geometric Brownian motion with growth rate $r$, the risk free interest rate:
+    \[S_t = S_0 \exp\left((r - \frac{\sigma^2}{2})t + \sigma B_t\right) \]
+
+    \tbf{Call Option:} A call option with maturity $T$ and strike price $K$ gives the holder the right to buy the stock with price $K$ at time $T$. If $S_T < K$, then the option will not be exercised and the payoff is $0$. If $S_T > K$, then the payoff is $S_T - K$: $X = (S_T - K)^+$ where $x^+ = \max(x, 0)$.
+
+    The price of the call option is 
+    \[v = \E\left[e^{-rT}\left(S_0 \exp((r - \frac{\sigma^2}{2})T + \sigma B_T) - K\right)^+\right]\]
+
+    \begin{tbox}{\textbf{Lemma:} Suppose $Y \sim N(\mu, \sigma^2)$ and $K > 0$ is constant. Then 
+        \[\E[(e^Y - K)^+] = \exp(\mu + \frac{1}{2}\sigma^2)\Phi(\sigma - \theta) - K\Phi(-\theta), \qquad \theta = \frac{\log K - \mu}{\sigma^2}\]
+        where $\Phi$ is the CDF of $N(0, 1)$}
+        \emph{Proof:} Let $x = \mu + \sigma z$ so 
+        \begin{align*}
+            \E[(e^Y - K)^+] &= \int_{\log K}^{\infty} (e^x - K) \frac{1}{\sqrt{2\pi}\sigma} e^{-\frac{1}{2\sigma^2}(x - \mu)^2}\; dx\\
+            &= \int_{\theta}^{\infty} (e^{\mu + \sigma z} - K) \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2}z^2}\; dz\\
+        \end{align*}
+
+        Since 
+        \begin{align*}
+            \int_{\theta}^{\infty} e^{\sigma z} \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2}z^2}\; dz &= e^{\frac{1}{2}\sigma^2} \int_{\theta}^{\infty} \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2}(z - \sigma)^2}\; dz\\
+            &= e^{\frac{1}{2}\sigma^2} \Phi(\sigma - \theta)
+        \end{align*}
+        and 
+        \[K \int_{\theta}^{\infty} \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2}z^2}\; dz = K\Phi(-\theta)\]
+        the result follows.
+    \end{tbox}
+
+    With a little algebra and the lemma, we have the \tbf{Black-Scholes Formula} for the price of a call option:
+    \[\text{Price of call } = S_0\Phi(\alpha) - Ke^{-rT} \Phi(\alpha - \sigma \sqrt{T})\]
+    for 
+    \[\alpha = \frac{1}{\sigma \sqrt T} \log \frac{S_0}{K} + (\frac{r}{\sigma} + \frac{\sigma}{2}) \sqrt T\]
+
+    \tbf{Put Option:} A put option with maturity $T$ and strike price $K$ gives the holder the right to sell the stock with price $K$ at time $T$. If $S_T > K$, then the option will not be exercised and the payoff is $0$. If $S_T < K$, then the payoff is $K - S_T$: $X = (K - S_T)^+$.
+
+    Performing the same calculations, 
+    \[\text{Price of put } = Ke^{-rT} \Phi(-\alpha + \sigma \sqrt T) - S_0 \Phi(-\alpha)\]
+    and, as before, 
+    \[\alpha = \frac{1}{\sigma \sqrt T} \log \frac{S_0}{K} + (\frac{r}{\sigma} + \frac{\sigma}{2}) \sqrt T\]
+
+    \tbf{Put-Call Parity:} Notice 
+    \[\text{Price of call } - \text{Price of Put} = S_0 - e^{-rT}K\]
+
+    One can derive this relation from $\Phi(x) + \Phi(-x) = 1$ or one could use the arbitrage free principle: Consider a portfolio of $1$ call and $-1$ put with the same maturity $T$ and strike price $K$. The portfolio's payoff is 
+    \[(S_T - K)^+ - (K - S_T)^+ = S_T - K\]
+    so we could replicate this portfolio with one share of the underlying stock and $-e^{-rT}K$ in cash (shorting the bond or loan with interest rate $r$) at time $t = 0$. The value of these two positions at $t = 0$ is $S_0 - e^{-rT}K$ and at $t = T$ is $S_T - K$.
+
+    By the arbitrage-free principle, the value of the portfolios should be the same at $t =0$ since they have the same value at $t = T$. This gives the put-call parity.
+   
+\section{Dec 2}
+\tbf{Recall:} Pricing for an option with payoff $X$ at maturity $T$ is governed by 
+\[\frac{dS_t}{S_t} = b\; dt + \sigma \;sB_t\] 
+where $b$ is the drift rate, which we approximate with the risk free interest $r$ under the risk-neutral probability. 
+
+Hence, the price of the option is given by the discounted expected value of the option payoff:
+\[e^{-rT} \E^*[x]\]
+
+But in fact, this model is only true for \tbf{European options} where the payoff can only be called at maturity. For \tbf{American options} (the much more common type), the payoff can be exercised at any time before maturity.
+
+\subsection*{American Call Pricing}
+    Let $X$ be the payoff of an American option at maturity $T$. 
+
+    For a Call: If we exercise at maturity, the payoff will be $(S_T - k)^+$ as before. But if we exercise at time $t < T$, the payoff will be $(S_t - k)^+$.
+
+    For a Put: If we exercise at maturity, the payoff will be $(k - S_T)^+$ as before. But if we exercise at time $t < T$, the payoff will be $(k - S_t)^+$.
+
+    What is the pricing formula? Recalling, the price of a European option is $\E^*[e^{-rT} (S_t - k)^+]$, it would make sense to price an American option as 
+    \[\E^*[e^{-rt}(S_t - k)^+]\]
+    but to take account of the possibility of early exercise and to respect the arbitrage-free principle, we in fact set the price by
+    \[\max_{0 \leq \tau \leq T} \E^*[e^{-r\tau} (S_{\tau} - k)^+]\]
+    for $\tau$ a stopping time. 
+
+    And this is just an optimization problem! 
+
+    \begin{tbox}{\textbf{Claim:} The optimal stopping time $\tau^*$ for the maximization problem above is in fact $T$}
+        \emph{Proof:} Let $X_t = e^{-rt}(S_t - k)^+$ and $Y_T = e^{-rt}(S_t - k)$ so $X_t = Y_t^+$. 
+
+        STEP 1. We claim that $Y_t$ is a submartingale 
+
+        \begin{proof}
+            \emph{Proof:} We have that $Y_t = e^{-rt}S_t - e^{-rt}k$ so consider 
+            \begin{align*}
+                d(e^{-rt} S_t) &= e^{-rt} \; dS_t + S_t d(e^{-rt}) + dS_t \; d(e^{-rt})\\ 
+                &= e^{-rt}(rS_t\; dt + \sigma S_t\; dB_t) + S_t(-re^{-rt}\; dt) +  0\\ 
+                &= \sigma e^{-rt} S_t \; dB_t
+            \end{align*}
+            which implies $e^{-rt}S_t$ is a martingale. 
+    
+            Now for $u < t$, 
+            \begin{align*}
+                \E^*[Y_t \; | \; \F_u] &= \E^*[e^{-rt}S_t - e^{-rt}k \; | \; \F_u]\\ 
+                    &= e^{-ru} S_u - e^{-rt}k\\ 
+                    &> e^{-ru} S_u - e^{-ru}k\\ 
+                    &= Y_u
+            \end{align*}
+            so $Y_t$ is a submartingale.
+        \end{proof}
+
+        STEP 2. $X_t = Y_t^+$ is also a submartingale.
+
+        \begin{proof}
+            \emph{Proof:} For $\E^*[X_t \; | \; \F_s] = \E^*[Y_t^+ \; | \; \F_s]$, we have two inequalities:
+            \begin{enumerate}
+                \item Because $Y_t^+ \geq Y_t$, 
+                \[\E^*[Y_t^+ \; | \; \F_s] \geq \E^*[Y_t \; | \; \F_s] \geq Y_s\]
+                since $Y_t$ is a submartingale.
+
+                \item Because $Y_t^+ \geq 0$,
+                \[\E^*[Y_t^+ \; | \; \F_s] \geq 0\]
+            \end{enumerate}
+
+            In particular, 
+            \[\E^*[X_t \; | \; \F_s] = \E^*[Y_t^+ \; | \; \F_s] \geq \max(Y_t, 0) = Y_t^+ = X_t\]
+        \end{proof}
+        
+        STEP 3. Since $X_t$ is a submartingale, by the Optional Sampling Theorem,
+        \[\max_{0\leq \tau \leq T} \E^*[X_t] \leq \E^*[X_T]\]
+    \end{tbox}
+
+    Hence, we in fact have that the price of an American call option is the same as the price of a European call.
+     
+\subsection*{American Put Option}
+    The put case is much more complicated.
+
+    As before, we have that the price is 
+    \[\max_{0 \leq \tau \leq T} \E^*[e^{-r\tau}(k - S_{\tau})^+]\]
+    which is no longer a martingale (in fact, $e^{-rt}(k - S_t)$ is a supermartingale but the positive part makes things difficult).
+
+    In fact, there is no explicit formula for the price of an American put option. We will seek to use dynamic programming and the HJB. 
+
+    The value function is given by 
+    \[v(t, x) = \max_{t \leq \tau \leq T}\E^*[e^{-r(\tau - t)}(k - S_t)^+ \; | \; S_t = x]\]
+    and our original problem seeks $v(0, S_0)$. In fact, this equation has a rather clear interpretation: it gives the value of the put option at time $t$. 
+
+    Intuitively, we will exercise the option if the price is low enough, i.e. if $S_t < \text{ threshold}$. But what should this threshold be? Should it be constant or depend on time? 
+
+    We know that if we are to exercise the option, 
+    \[v(t, x) = (k - x)^+ = k -x\]
+
+    However, if we choose to wait, that is exactly equivalent to taking our normal approach and considering a later time $t + \ep$.
+
+    Consider our normal approach: apply any control on $[t, t + \ep]$ and then act optimally for $[t + \ep, T]$.
+    \[v(t, x) = \E^*[e^{-t\ep} v(t + \ep, S_{t+\ep}) \; | \; S_t = x]\]
+    so the governing PDE is 
+    \[-rv + \frac{\partial v}{\partial t} + \frac{\partial v}{\partial x} rx + \frac{1}{2} \frac{\partial^2 v}{\partial x^2} \sigma^2 x^2 = 0\]
+
+    \begin{exercise}
+        \textbf{Exercise:} Use the Ito formula to find the form of the integrals for 
+        \[e^{-r\ep} v(t + \ep, S_{t+\ep}) - v(t, S_t)= \int_0^S \dots \; dt + \int_0^{\ep} \dots\; dB_t\]
+    \end{exercise}
+
+\section{Dec 4}
+    \subsection{American Put Continued}
+        We can consider the situation another way. 
+        
+        \[X_t  = e^{-rt} v(t, S_t)\]
+        will give the value of the put at time $t$ (evaluate at time $0$). 
+
+        Since we are maximizing, we expect $X_t$ to be a supermartingale:
+        \begin{align*}
+            dX_t &= d(e^{-rt} v(t, S_t))\\ 
+                &= v\; d(e^{-rt}) + e^{-rt} \; dv + d(e^{-rt})\; dv\\ 
+                &= -re^{-rt} v\; dt + e^{-rt}\left[\partial_t v + \partial_x v \; dS_t + \frac{1}{2}\partial_{xx} (dS_t)^2\right]\\ 
+                &= e^{-rt} \left[-rv + \frac{\partial v}{\partial t} + \frac{\partial v}{\partial x} rx + \frac{1}{2} \frac{\partial^2 v}{\partial x^2} \sigma^2 x^2\right]_{x = S_t}\; dt + \frac{\partial v}{\partial x} \sigma S_t\; dB_t
+        \end{align*}
+        
+        But that last term is a martingale, so we know 
+        \[-rv  + \frac{\partial v}{\partial t} + \frac{\partial v}{\partial x} rx + \frac{1}{2} \frac{\partial^2 v}{\partial x^2} \sigma^2 x^2 \leq 0\] 
+        
+        Denote this equation 
+        \[\L v = -rv  + \frac{\partial v}{\partial t} + \frac{\partial v}{\partial x} rx + \frac{1}{2} \frac{\partial^2 v}{\partial x^2} \sigma^2 x^2 \]
+        and now we know 
+        \begin{itemize}
+            \item If $\L v< 0$, exercise the option 
+            \item If $\L v = 0$, wait
+        \end{itemize}
+
+        \begin{center}
+            \includegraphics[width=0.8\textwidth]{Images/Free boundary.png}
+        \end{center}
+
+        Hence, everything comes down to solving for (or approximating) the boundary of the exercise region. In general, this is exceptionally difficult as it requires solving an equation with differential and integral terms. Numerical methods are also susceptible to singularities.  
+
+    \subsection{Perpetual Put}  
+        Instead, we will consider an option with maturity $t = \infty$. If we can take limits, we can approximate behavior for large $T$. 
+
+        Of course, this is just an infinite horizon problem. As before, we have value function 
+        \[v(x) = \max_{0 \leq \tau} \E[e^{-r\tau} (k - S_t)^+ \; | \; S_0 = x]\]
+
+        But now the threshold is constant and we have an ODE 
+        \[\L v(x) = -rv + rxv' + \frac{1}{2}\sigma^2 x^2 v''\]
+        rather than a PDE!
+
+        \begin{center}
+            \includegraphics[width=0.8\textwidth]{Images/ODE Boundary.png}
+        \end{center}
+
+        And in fact, this can be solved explicitly! 
+
+        For $x > b^*$, $\L v(x) = 0$ so 
+        \[v(x) = Ax^{\alpha_1} + Bx^{\alpha_2} = Ax^{-\frac{2r}{\sigma^2}} + Bx\]
+        but $v$ is bounded and $\alpha_2 > 0$ so $B = 0$: 
+        \[v(x) = Ax^{-\frac{2r}{\sigma^2}}\]
+
+        So we have two equations:
+        \begin{enumerate}
+            \item
+            \[\begin{cases}
+                Ax^{-\frac{2r}{\sigma^2}} = k - x\\ 
+                Ax = b
+            \end{cases} \implies Ab^{-\frac{2r}{\sigma^2}} = k - b\] 
+
+            \item From the \emph{Smooth Pasting Condition}, $v$ is continuously differentiable across the free boundary so 
+            \[A(-\frac{2r}{\sigma^2})b^{-\frac{2r}{\sigma^2} - 1} = -1\]
+        \end{enumerate}
+
+        Together, these give us the information we need to make numerical approximation feasible. 
+
+    \subsection{Utility Maximization} 
+        Let $\pi_t$ be the position of a stock at time $t$, $X_t$ the total value of the portfolio, and $c_t$ the instantaneous consumption rate.  
+
+        Consider the model 
+        \[\frac{dS_t}{S_t} = \mu \; dt + \sigma \;dB_t\]
+
+        Then $X_t - \pi_t S_t$ is the cash amount at time $t$ and, with $X_0 = x$, 
+        \begin{align*}
+            dX_t &= \pi_t \; dS_t + (X_t - \pi_t S_t) r\; dt - c_t\; dt\\ 
+                &= (rX_t - c_t)\; dt + (\mu - r)\pi_t S_t\; dt + \sigma \pi_t S_t\; dB_t 
+        \end{align*}
+        with controls $(\pi_t, c_t)$. 
+
+        Hence, our goal is to maximize
+        \[\max_{(\pi_t, c_t)} \E\left[\int_0^T U(c_t)\; dBt \; \bigg\vert \; X_0 = x\right]\]
+
+        The utility function $U: [0, \infty) \to \R$ is assumed to by continuously differentiable, increasing, and strictly concave (e.g. $U(x) = x^{\alpha}, \alpha \in (0, 1)$).
+
+        This problem could be solved with \emph{the duality method} using some convex analysis but we will use DP and the HJB equation. Define 
+        \[v(t, x) = \sup_{(\pi, c)} \E\left[\int_t^T U(c_{\theta})\; d\theta \; \bigg\vert \; X_t = x\right]\]
+
+        Ignoring the admissibility condition, we have the HJB equation 
+        \[\max_{(u, c)} \left\{\frac{\partial v}{\partial t} + \frac{\partial v}{\partial x} [rx - c + (\mu - r)u] + \frac{1}{2}\frac{\partial^2 v}{\partial x^2} \sigma^2 u^2 + U(c)\right\} = 0\]
+        for $c \geq 0$ with $v(T, x) = 0$. 
+
+        We assume that the value function satisfies $\frac{\partial v}{\partial x} > 0$ and $\frac{\partial^2 v}{\partial x^2} < 0$ (though these are natural from the properties of the utility function).
+
+        Then the maximizer $u^*$ and $c^* \geq 0$ is given by 
+        \[U'(c^*) = \frac{\partial v}{\partial x}, \quad u^* = -\frac{\mu - r}{\sigma^2} \frac{\partial v}{\partial x} \left(\frac{\partial^2 v}{\partial x^2}\right)^{-1} \]
+
+        We could plug this back into the HJB equation to get a PDE but it ends up being a messy-looking nonlinear PDE that is quite difficult to solve. Instead, we will specialize to the power utility $U(x) = x^{\alpha}$ for some $\alpha \in (0, 1)$.
+
+        Further, assume the value function will take the form 
+        \[v(t, x) = f(t)x^{\alpha}\]
+        for some function $f$. Then, 
+        \[c^* = \left[\frac{1}{f(t)}\right]^{1/(1 - \alpha)}, \quad u^* = \frac{\mu - r}{\sigma^2 (1 - \alpha)} x\]
+
+        Now when we plug this back into the HJB equation, we get an ODE of $f$ alone (the common term $x^{\alpha}$ disappears):
+        \[\frac{1}{1 - \alpha}f'(t) + \beta f(t) + \left[\frac{1}{f(t)}\right]^{\alpha/(1 - \alpha)} = 0\]
+        where 
+        \[\beta = \frac{\alpha}{1 - \alpha}\left[r + \frac{(\mu - r)^2}{2\sigma^2(1 - \alpha)^2}\right]\] 
+        with terminal condition $f(T) = 0$.
+
+        Define $g(t) = f(t)^{1/(1 - \alpha)}$ so the ODE becomes linear:
+        \[g'(t) + \beta g(t) + 1 = 0\]
+        with $g(T) = 0$.
+
+        Now, trivially, 
+        \[g(t) = Ae^{-\beta t} - \frac{1}{\beta}\]
+        and 
+        \[g(T) = 0 \implies A = \frac{e^{\beta T}}{\beta}\]
+
+        Hence, 
+        \begin{cases}
+            g(t) = \frac{1}{\beta}(e^{\beta (T - t) - 1})\\ 
+            \begin{aligned}
+                f(t) &= [g(t)]^{1 - \alpha}\\ 
+                    &= \frac{1}{\beta^{1- \alpha}} [e^{\beta(T - t) - 1}]^{1 - \alpha}
+            \end{aligned}
+        \end{cases}    
+
+        Concretely, this means the optimal policy is to invest a constant fraction of the total wealth (see $u^*$) at any time. The optimal consumption rate is proportional to the total wealth, where the proportionality constant is a deterministic function $g^{-1}(t)$ and does not depend on the stock price. 
+
+        Finally, we will confirm the assumptions on the value function derivatives and the admissibility condition. Under the optimal policy above, the wealth process $X_t$ satisfies 
+        \[dX_t = h(t) X_t \; dt + bX_t\; dB_t\]
+        where $h$ is a deterministic function and $b$ a fixed constant. One can use Itô's formula to verify that the solution takes the form 
+        \[X_t = X_0 \exp\left[\int_0^t [h(\theta - \frac{1}{2}b^2)] \;d\theta + b\; dB_t\right]\]
+        which is clearly non-negative. In particular, this means the policy is admissible.  
+
+\section{Dec 6}
+    In the past, we have shown that starting with initial wealth $v$, it is possible to completely replicate an option of value $v$ by investing in the stock and the bond to hedge away risk. But what if we start with initial wealth $x < v$? Can we partially hedge the risk? That is, can we find a portfolio with initial wealth $x$ that maximizer the probability of covering the option's payoff at time $T$? 
+
+    Suppose $Y$ is the payoff at $T$, the risk-free interest rate is $r$ and the price satisfies 
+    \[dS_t = \mu S_t\; dt + \sigma S_t\; dB_t\] 
+
+    Consider a portfolio with initial value $x$ and invest $\theta_t$ in the stock at time $t$. Then the portfolio evolves as 
+    \[dX_t = rX_t \; dt + (\mu - r) \theta_t\; dt + \sigma \theta_t\; dB_t\]
+
+    We want to maximize $\P(X_T \geq Y \; | \; \theta_t)$ with $X_T \geq 0$. 
+
+    First, we can assume $r = 0$ (else consider $e^{-rt}X_t$ and $e^{-rt} Y$). Secondly, assume WLOG that $Y = 1$ (else we can replicate $Y$ with a portfolio $\delta_t$ so for $(x, \mu, \sigma)$ and $\theta_t$ the problem with $Y = 1$, $(x, \mu, \sigma)/v$ and $(\theta_t - \delta_t)$ is equivalent to the original problem with value $v$).
+
+    For simplicity, let $r = 0$, $\sigma = 1$, $\mu > 0$. Then $X_t$ satisfies 
+    \[dX_t = \frac{\theta_t}{S_t} \; dS_t = \theta_t (\mu\; dt + dB_t), \quad X_0 =x_0 \in (0, 1)\]
+
+    The goal is to find $\theta_t$ to maximize $\P(X_T \geq 1)$ under the constraint $X_T \geq 0$. 
+
+    Define 
+    \[v(t, x) = \max_{\{\theta_t\}} \P(X_T \geq 1 \; | \; X_t = x)\]
+    then $v$ satisfies the HJB equation
+    \[\frac{\partial v}{\partial t} + \sup_{\theta} \left[\frac{\partial v}{\partial x} \mu \theta + \frac{1}{2} \frac{\partial^2 v}{\partial x^2} \theta^2\right] = 0\]
+    with terminal condition $v(T, x) = \ind_{\{x \geq 1\}}$. 
+
+    Note that $v(t, x) = 1$ for $x \geq 1$ so we only need to be concerned with $x \in [0, 1)$. 
+
+    This HJB is nonlinear and no solution form is obvious. Let's move the other direction: what should the terminal wealth $X_T$ look like under optimal strategy?
+
+    If we imagine $X_T$ as a fictitious option payoff, its price is $\E^*[X_T]$. But since $X_T$ is replicated by a portfolio with initial wealth $x_0$, by the arbitrage free principle, $\E^*[X_T] = x_0$.
+
+    Notice we are dealing with two probabilities: $\P$ is the real world probability and $\E^*$ ($\P^*$ is the fictitious risk-neutral probability). We are trying to find a random variable $Y$ to maximize $\P(Y \geq 1)$ under the constraint $\E^*[Y] = x_0$.
+
+    In some sense, it makes sense to consider the simplest case $Y = \ind_B$ for some $B$ so the problem becomes 
+    \[\max\{\P(B): \P^*(B) = x_0\}\]
+
+    This should immediately call hypothesis testing in statistics to mind.
+
+    \begin{tbox}{\textbf{Neyman-Pearson Lemma:} Let $f, g$ be two nonzero density functions. Let $\alpha \in (0, 1)$. For the maximization problem 
+        \[\max\{\int_A f(x)\; dx: \quad \int_A g(x)\; dx \leq \alpha\}\] 
+        if there exists a number $k^*$ such  that 
+        \[\int_{A^*} g(x)\; dx = \alpha\] 
+        on 
+        \[A^* = \left\{x: \frac{f(x)}{g(x)} \geq k^*\right\}\]}
+        \emph{Proof:} Take any set $A$ such that 
+        \[\int_A g(x)\; dx \leq \alpha\]
+
+        Then 
+        \[D := \int_{A^*} f(x)\;dx - \int_A f(x)\; dx = \int_{A^*\setminus A} f(x)\; dx - \int_{A \setminus A^*} f(x)\; dx\]
+
+        But $f(x) \geq k^*g(x)$ on $A\setminus A^*$ and $f(x) < k^*g(x)$ on $A^* \setminus A$ so 
+        \begin{align*}
+            D &\geq \int_{A^* \setminus A} k^* g(x)\; dx - \int_{A \setminus A^*} g(x)\; dx\\
+            &= \int_{A^*} k^* g(x)\; dx - \int_A g(x)\; dx \geq 0\\
+        \end{align*}
+    \end{tbox}
+
+    Consider the sets $B = \{S_T \in A\}$ for some $A \sub \R$. We will make calculations based on this form and then later verify that it is optimal via the HJB equation. 
+    
+    With this $B$, our goal is 
+    \[\max\{\P(S_T \in A): \P^*(S_T \in A) = x_0\}\]
+
+    But under the real-world probability $\P$, the stock price $S_t$ is a GBM with drift $\mu$ so 
+    \[S_T = S_0 \exp\left[(\mu - \frac{1}{2})T + B_T\right]\] 
+
+    Under the risk-neutral probability $\P^*$, the stock price is a GBM with drift $r = 0$ so
+    \[S_T = S_0 \exp\left[-\frac{1}{2}T + B_T\right]\]
+
+    It follows that we can rewrite the maximization prblem as 
+    \[\max\left[\P\left(\mu T - \frac{T}{2} + B_T \in A\right): \quad \P^*\left(-\frac{T}{2} + B_T \in A\right) = x_0  \right]\]
+    (note that $A$ here is a different set)
+
+    This is exactly the Neyman-Pearson lemma with $f$ and $g$ being the desnities for $\mu T - \frac{T}{2} + B_T \sim N(\mu T - \frac{T}{2}, T)$ and $-\frac{T}{2} + B_T \sim N(-\frac{T}{2}, T)$ respectively.
+
+    It is not hard to verify that for any $k$, 
+    \[\{x: \frac{f(x)}{g(x)} \geq k\} = \{x: x \geq a\}\]
+    for some $a \in \R$. According to the Neyman-Pearson lemma, the optimal set $A^* = \{x \geq a^*\}$ is given by 
+    \begin{align*}
+        x_0 &= \int_{\{x \geq a^*\}}g(x)\; dx\\ 
+            &= \P\left(N(-\frac{T}{2}, T) \geq a^*\right)\\ 
+            &= 1 - \Phi\left(\frac{a^*}{\sqrt{T}} + \frac{\sqrt T}{2}\right)
+    \end{align*}
+    or 
+    \[a^* = -\sqrt T \Phi^{-1}(x_0) - \frac{T}{2}\]
+    where $\Phi$ is the CDF of $N(0, 1)$. Therefore, 
+    \[\P\left(N(\mu T - \frac{T}{2}, T) \geq a^*\right) = \Phi(\Phi^{-1}(x_0) + \mu\sqrt T)\]
+
+    This is the maximal probability $v(0, x_0)$. The extension to the maximal probability $v(t, x)$ is just 
+    \[v(t, x) = \Phi(\Phi^{-1}(x) + \mu\sqrt{T - t}), \quad 0 \leq x \leq 1\]
+
+    How do we verify this is the true value function? We can use the HJB equation. We omit the technical details and confirm that it does satisfy the HJB equation. As a byproduct of the verification, we have the maximizing strategy:
+    \[\theta^*(t, x) = \frac{\phi(\Phi^{-1}(x))}{\sqrt{T - t}}\]
+    where $\phi$ is the PDF of $N(0, 1)$.
+    \end{document}  
 
  

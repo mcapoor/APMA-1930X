@@ -1,0 +1,198 @@
+\documentclass[12pt]{article} 
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\geometry{letterpaper, margin=0.5in}
+\usepackage{graphicx} 
+\usepackage{parskip}
+\usepackage{booktabs}
+\usepackage{array} 
+\usepackage{paralist} 
+\usepackage{verbatim}
+\usepackage{subfig}
+\usepackage{fancyhdr}
+\usepackage{sectsty}
+\usepackage[shortlabels]{enumitem}
+
+\pagestyle{fancy}
+\renewcommand{\headrulewidth}{0pt} 
+\lhead{}\chead{}\rhead{}
+\lfoot{}\cfoot{\thepage}\rfoot{}
+
+
+%%% ToC (table of contents) APPEARANCE
+\usepackage[nottoc,notlof,notlot]{tocbibind} 
+\usepackage[titles,subfigure]{tocloft}
+\renewcommand{\cftsecfont}{\rmfamily\mdseries\upshape}
+\renewcommand{\cftsecpagefont}{\rmfamily\mdseries\upshape} %
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{empheq}
+\usepackage{xcolor}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{tikz-cd}
+\pgfplotsset{compat=1.18}
+
+\newcommand{\ans}[1]{\boxed{\text{#1}}}
+\newcommand{\vecs}[1]{\langle #1\rangle}
+\renewcommand{\hat}[1]{\widehat{#1}}
+\newcommand{\F}[1]{\mathcal{F}(#1)}
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\ind}{\mathbbm{1}}
+\newcommand{\qed}{\quad \blacksquare}
+\newcommand{\brak}[1]{\left\langle #1 \right\rangle}
+\newcommand{\bra}[1]{\left\langle #1 \right\vert}
+\newcommand{\ket}[1]{\left\vert #1 \right\rangle}
+\newcommand{\abs}[1]{\left\vert #1 \right\vert}
+\newcommand{\mfX}{\mathfrak{X}}
+\newcommand{\ep}{\varepsilon}
+
+\newcommand{\Ec}{\mathcal{E}}
+\newcommand{\sub}{\subseteq}
+\newcommand{\st}{\text{ s.t. }}
+\renewcommand{\div}{\vspace*{10pt}\hrule\vspace*{10pt}}
+
+\newcommand*{\tbf}[1]{\ifmmode\mathbf{#1}\else\textbf{#1}\fi}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable, skins}
+\tcbset{enhanced}
+\newenvironment*{tbox}[2][gray]{
+    \begin{tcolorbox}[
+parbox=false,
+        colback=#1!5!white,
+        colframe=#1!75!black,
+        breakable,
+        title={#2}
+    ]}
+    {\end{tcolorbox}}
+
+\newenvironment*{proof}[1][blue]{
+    \begin{tcolorbox}[
+    parbox=false,
+        colback=#1!5!white,
+        colframe=#1!75!black,
+        coltext=#1,
+        breakable
+    ]}
+    {\end{tcolorbox}}
+
+\title{APMA 1930X: Homework 3}
+\author{Milan Capoor}
+\date{Oct 18}
+
+\begin{document}
+\maketitle
+
+1. (Kelly Criterion)  Suppose you are playing a betting game with the initial stake $S_0 = x_0 > _0$. Let $S_n$ be your wealth at the end of the $n$-th round. Let $Y_{n+1}$ be the amount you bet at the $(n + 1)$-th round. Your winning per-unit-stake on the $(n + 1)$-th round of betting can be represented by $X_{n+1}$, where $\{X_1, X_2, \dots\}$ are iid random  variables with
+\[P(X_{n+1} = a) = p, P(X_{n+1} = -b) = q = 1 - p\]
+
+In other words, you will win the amount $aY_{n+1}$ with probability $p$, and lose the amount $bY_{n+1}$ with probability $q$. The dynamics of the wealth process is given by
+\[S_{n+1} = S_n + X_{n+1} Y_{n+1},\quad n \geq 0\]
+Here we should assume that $a, b > 0$ and the game is in favor of you,
+that is,
+\[\E[X_{n+1}] = ap - bq > 0\]
+and
+\[0 \leq Y_{n+1} \leq \frac{S_n}{b}\]
+
+The upper bound on $Y_{n+1}$ is to ensure that the loss will not exceed $S_n$.
+
+Suppose the game ends at the $N$-th round. We wish to find an optimal betting strategy $\{Y_1^*, Y_2^*, \dots, Y_{N}^*\}$ so as the maximize the expected utility $\E[\log S_N]$
+
+\tbf{Hint:} Mimic Example 2.9. Verify the the value function takes the form 
+\[v_n(x) = \log x + (N - n)c\]
+for some constant $c$. 
+
+    \color{blue}
+        Let $V_n(x) = \sup \E[\log S_N \; | \; S_n = x]$, i.e. the maximum expected utility at time $n$ given that the wealth is $x$. 
+
+        Clearly, 
+        \[V_N(x) = \sup \E[\log S_n \; | \; S_N = x] = \sup \E[\log x] = \log x\]
+
+        Now, per usual, suppose that (with $0 \leq n \leq N - 1$), $S_n = x$ and we bet $Y_{n+1} = y$ at the $n+1$-th round but then bet optimally for $n+2, \dots, N$.
+
+        If we win (with probability $p$), then $S_{n+1} = x + ay$ and if we lose (with probability $q$), then $S_{n+1} = x - by$. In the case we win, our maximum utility is just $V_{n+1}(x + ay)$ and in the case we lose, our maximum utility is $V_{n+1}(x - by)$.
+
+        Hence, 
+        \[\E[V_{n+1}(S_{n+1})] = pV_{n+1}(x + ay) + qV_{n+1}(x - by)\]
+
+        So to find the optimal betting strategy, we introduce the DPE 
+        \[\begin{cases}
+            V_n(x) = \sup_{0 \leq y \leq x} [pV_{n+1}(x + ay) + qV_{n+1}(x - by)]\\ 
+            V_N(x) = \log x
+        \end{cases}\]
+
+        Let's calculate a few cases:
+        \begin{align*}
+            V_{N-1}(x) &= \sup_{0 \leq y \leq x} [pV_N(x + ay) + qV_N(x - by)]\\ 
+                &= \sup_{0 \leq y \leq x} [p\log(x + ay) + q\log(x - by)]\\ 
+        \end{align*}
+
+        And 
+        \begin{align*}
+            0 &= \frac{d}{dy}\left[ p\log(x + ay) + q\log(x - by)\right]\\ 
+                &= \frac{ap}{x + ay} - \frac{bq}{x - by}\\
+                &\implies y = \frac{xap - xbq}{ab(p+q)}
+        \end{align*}
+
+        So 
+        \[y^* = \frac{x(ap - bq)}{ab}\]
+
+        Let $c^* = \frac{ap - bq}{ab}$. Then
+        \begin{align*}
+            V_{N-1}(x) &= p\log(x + ac^*x) + q\log(x - bc^*x)\\ 
+                &= p\log(x(1 + ac^*)) + q\log(x(1 - bc^*))\\ 
+                &= p\log x + p\log(1 + ac^*) + q\log x + q\log(1 - bc^*)\\ 
+                &= p\log x + p\log(1 + ac^*) + (1 - p)\log x + q\log(1 - bc^*)\\
+                &= \log x + p\log(1 + ac^*) + q\log(1 - bc^*)
+        \end{align*}
+
+        But the last two terms are constants so $V_{n-1}(x) = \log x + c$ for $c = p\log(1 + ac^*) + q\log(1 - bc^*)$.
+
+        Similarly, 
+        \begin{align*}
+            V_{N-2}(x) &= pV_{N-1}(x + ay^*) + qV_{N-1}(x - by^*)\\ 
+                &= p(\log(x + axc^*) + c) + q(\log(x - bxc^*) + c)\\
+                &= p\log x + p\log(1 + ac^*) + pc + q\log x + q\log(1 - bc^*) + qc\\
+                &= \log x + (p + q)c + p\log(1 + ac^*) + q\log(1 - bc^*)\\ 
+                &= \log x + c + c\\ 
+                &= \log x + 2c
+        \end{align*}
+
+        Suppose that $V_{n+1}(x) = \log x + (N - n - 1)c$. Then
+        \begin{align*}
+            V_n(x) &= \sup_{0 \leq y \leq x} [pV_{n+1}(x + ay) + qV_{n+1}(x - by)]\\ 
+                &= \sup_{0 \leq y \leq x} [p\log(x + ay) + p(N - n - 1)c + q\log(x - by) + q(N - n - 1)c]\\
+        \end{align*}
+
+        Taking the derivative with respect to $y$, we get
+        \begin{align*}
+            0 &= \frac{d}{dy} [p\log(x + ay) + p(N - n - 1)c + q\log(x - by) + q(N - n - 1)c]\\ 
+            &= \frac{ap}{x + ay} - \frac{bq}{x - by}\\ 
+            &\implies y = x\frac{ap - bq}{ab(p+q)} = xc^*
+        \end{align*}
+        so 
+        \begin{align*}
+            V_n(x) &= [p\log(x + ay^*) + p(N - n - 1)c + q\log(x - by^*) + q(N - n - 1)c]\\ 
+                &= p\log(x + axc^*) + p(N - n - 1)c + q\log(x - bxc^*) + q(N - n - 1)c\\
+                &= (p + q)\log x + p\log(1 + ac^*) + q\log x \log(1 - bc^*) + (p + q)(N - n - 1)c\\
+                &= \log x + c + (N - n - 1)c\\
+                &= \log x + (N - n)c
+        \end{align*} 
+
+        Hence, by induction, $V_n(x) = \log x + (N - n)c$ for 
+        \[c = p\log(1 + \frac{ap - bq}{b}) + q\log(1 - \frac{ap - bq}{a})\] 
+        
+        So the optimal betting strategy is $Y_n^* = \frac{S_n(ap - bq)}{ab}$.
+       
+    \color{black}
+
+\end{document}
